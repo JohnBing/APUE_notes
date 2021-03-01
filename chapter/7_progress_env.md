@@ -4,7 +4,7 @@
 
 1. C程序总是从`main`函数开始执行的。`main`函数的原型是：
 
-	```
+	```C++
 	int main(int argc,char* argv[]);
 	```
 	- 参数：
@@ -35,7 +35,7 @@
 
 4. `exit/_Exit/_exit`函数：正常终止一个程序
 
-	```
+	```C++
 	#include<stdlib.h>
 	void exit(int status);
 	void _Exit(int status);
@@ -62,7 +62,7 @@
 
 5. `atexit`函数：登记由`exit`函数调用的清理函数
 
-	```
+	```C++
 	#include<stdlib.h>
 	int atexit(void (*func) (void));
 	```
@@ -79,16 +79,16 @@
 
 6. 示例：在`main`函数中调用`test_exit_atexit`函数：
 
-	```
-void test_exit_atexit()
-{
-    M_TRACE("---------  Begin test_exit_atexit()  ---------\n");
-    add_atexit();
-    exit(258);  // 三选一
-//    _Exit(260);  // 三选一
-//    _exit(265);  // 三选一
-    M_TRACE("---------  End test_exit_atexit()  ---------\n\n");
-}
+	```C++
+	void test_exit_atexit()
+	{
+		M_TRACE("---------  Begin test_exit_atexit()  ---------\n");
+		add_atexit();
+		exit(258);  // 三选一
+	//    _Exit(260);  // 三选一
+	//    _exit(265);  // 三选一
+		M_TRACE("---------  End test_exit_atexit()  ---------\n\n");
+	}
 	```
 	可以看到：
 	- 终止处理程序`exit handler` 调用顺序是逆序的
@@ -143,69 +143,69 @@ void test_exit_atexit()
 
 10.  `malloc/calloc/realloc`函数：动态分配存储空间
 
-	```
-	#include<stdlib.h>
-	void *malloc(size_t size);
-	void *calloc(size_t nobj,size_t size);
-	void *realloc(void *ptr,size_t newsize);
-	```
-	- 参数：
+```C++
+#include<stdlib.h>
+void *malloc(size_t size);
+void *calloc(size_t nobj,size_t size);
+void *realloc(void *ptr,size_t newsize);
+```
+- 参数：
 
-		对于`malloc`函数：
-		- `size`：动态分配的存储空间的大小（字节数）
+	对于`malloc`函数：
+	- `size`：动态分配的存储空间的大小（字节数）
 
-		对于`calloc`函数：
-		- `nobj`：动态分配的对象的数量
-		- `size`：每个对象的大小（字节数）
+	对于`calloc`函数：
+	- `nobj`：动态分配的对象的数量
+	- `size`：每个对象的大小（字节数）
 
-		对于`realloc`函数：
-		- `ptr`：由`malloc/realloc`返回的指针，指向一个动态分配的空间
-			- 如果`ptr`是`NULL`，则`realloc`与`malloc`功能相同，是分配一个指定长度为`newsize`字节的动态存储空间
-		- `newsize`：调整后的动态空间的大小（字节数）
-	- 返回值：
-		- 成功：返回非空指针
-		- 失败：返回`NULL`
+	对于`realloc`函数：
+	- `ptr`：由`malloc/realloc`返回的指针，指向一个动态分配的空间
+		- 如果`ptr`是`NULL`，则`realloc`与`malloc`功能相同，是分配一个指定长度为`newsize`字节的动态存储空间
+	- `newsize`：调整后的动态空间的大小（字节数）
+- 返回值：
+	- 成功：返回非空指针
+	- 失败：返回`NULL`
 
-	注意：
-	- 这三个分配函数所返回的指针一定是适当对齐的，使其可以用于任何数据对象
-	- `realloc`可以增加、减少之前分配的动态存储区长度。对于增加动态存储区的情况：
-		- 如果在原来动态存储区位置后面有足够的空间可以扩充，则可以在原存储区位置上向高地址扩充，无需移动任何原先的内容，并返回与传给它相同的指针值
-		- 如果在原来动态存储区位置后面没有足够的空间可以扩充，则`realloc`分配另一个足够大的动态存储区，然后将原先的内容移动到新的存储区。然后释放原存储区，返回新分配存储区的指针
-	- 这些分配函数通常使用`sbrk`系统调用实现。该系统调用用于扩充或者缩小进程的堆空间。
-		- 大多数实现所分配的存储空间要比所要求的稍大一些，额外的空间用来记录管理信息，比如分配块的长度、指向下一个分配块的指针等等。
-		- 因此在一个动态分配区的尾部之后或者在起始位置之前写操作会修改另一块的管理记录信息。这种类型的错误是灾难性的，但是由于这种错误不会立即暴露出来，因此很难被发现
-	- 这三个函数返回的动态分配区必须用`free()`函数进行释放。
-		- 如果一个进程调用了`malloc`函数但是没有调用`free`函数，则该进程占用的存储空间就会连续增加，这称作内存泄漏。
-		- 内存泄漏会导致进程地址空间长度慢慢增加直到不再有空闲空间。此时过度的换页开销会导致性能下降
-	- 对一块动态分配的内存，只能`free`一次。如果`free`多次则会发生错误
+注意：
+- 这三个分配函数所返回的指针一定是适当对齐的，使其可以用于任何数据对象
+- `realloc`可以增加、减少之前分配的动态存储区长度。对于增加动态存储区的情况：
+	- 如果在原来动态存储区位置后面有足够的空间可以扩充，则可以在原存储区位置上向高地址扩充，无需移动任何原先的内容，并返回与传给它相同的指针值
+	- 如果在原来动态存储区位置后面没有足够的空间可以扩充，则`realloc`分配另一个足够大的动态存储区，然后将原先的内容移动到新的存储区。然后释放原存储区，返回新分配存储区的指针
+- 这些分配函数通常使用`sbrk`系统调用实现。该系统调用用于扩充或者缩小进程的堆空间。
+	- 大多数实现所分配的存储空间要比所要求的稍大一些，额外的空间用来记录管理信息，比如分配块的长度、指向下一个分配块的指针等等。
+	- 因此在一个动态分配区的尾部之后或者在起始位置之前写操作会修改另一块的管理记录信息。这种类型的错误是灾难性的，但是由于这种错误不会立即暴露出来，因此很难被发现
+- 这三个函数返回的动态分配区必须用`free()`函数进行释放。
+	- 如果一个进程调用了`malloc`函数但是没有调用`free`函数，则该进程占用的存储空间就会连续增加，这称作内存泄漏。
+	- 内存泄漏会导致进程地址空间长度慢慢增加直到不再有空闲空间。此时过度的换页开销会导致性能下降
+- 对一块动态分配的内存，只能`free`一次。如果`free`多次则会发生错误
 
 11. 示例:在`main`函数中调用`test_malloc_realloc`函数：
 
-	```
-void test_malloc_realloc()
-{
-    M_TRACE("---------  Begin test_malloc_realloc()  ---------\n");
-    free(NULL); //测试 free(NULL)
-    void * ptr1;
-    void * ptr2;
-    void * ptr3;
-    void * ptr4;
-    void * ptr5;
+	```C++
+	void test_malloc_realloc()
+	{
+		M_TRACE("---------  Begin test_malloc_realloc()  ---------\n");
+		free(NULL); //测试 free(NULL)
+		void * ptr1;
+		void * ptr2;
+		void * ptr3;
+		void * ptr4;
+		void * ptr5;
 
-    //************ 执行测试 ***************//
-    ptr1=My_malloc(10);
-    ptr2=My_calloc(sizeof(struct timespec),10);
-    ptr3=My_realloc(ptr1,5); // 缩小
-    ptr4=My_realloc(ptr3,1000); // 扩大，ptr1！=ptr3(ptr1 释放掉，ptr3 重新分配)
-    ptr5=My_realloc(NULL,100); //等价于 malloc(100)
-    //************* 释放内存 **************//
-    free(ptr5); // ok ，因为是新分配的
-    free(ptr4);
-    free(ptr2); // ok， 因为是新分配的
-// free(ptr1); // 错误：因为 ptr1=ptr3，而 ptr3指向的内存在 My_realloc(ptr3,1000) 时被释放
-// free(ptr3);// 错误：因为 ptr1=ptr3，而 ptr3指向的内存在 My_realloc(ptr3,1000) 时被释放
-    M_TRACE("---------  End test_malloc_realloc()  ---------\n\n");
-}
+		//************ 执行测试 ***************//
+		ptr1=My_malloc(10);
+		ptr2=My_calloc(sizeof(struct timespec),10);
+		ptr3=My_realloc(ptr1,5); // 缩小
+		ptr4=My_realloc(ptr3,1000); // 扩大，ptr1！=ptr3(ptr1 释放掉，ptr3 重新分配)
+		ptr5=My_realloc(NULL,100); //等价于 malloc(100)
+		//************* 释放内存 **************//
+		free(ptr5); // ok ，因为是新分配的
+		free(ptr4);
+		free(ptr2); // ok， 因为是新分配的
+	// free(ptr1); // 错误：因为 ptr1=ptr3，而 ptr3指向的内存在 My_realloc(ptr3,1000) 时被释放
+	// free(ptr3);// 错误：因为 ptr1=ptr3，而 ptr3指向的内存在 My_realloc(ptr3,1000) 时被释放
+		M_TRACE("---------  End test_malloc_realloc()  ---------\n\n");
+	}
 	```
 
 	![malloc](../imgs/progress_env/malloc.JPG) 
@@ -227,7 +227,7 @@ void test_malloc_realloc()
 
 12. 必须用不同的变量保存`realloc`返回的值：
 
-	```
+	```C++
 	char * ptr=malloc(10);
 	ptr=realloc(1000); # 错误行为
 	```
@@ -239,7 +239,7 @@ void test_malloc_realloc()
 
 2. `getenv`函数：获取环境变量的值：
 
-	```
+	```C++
 	#include<stdlib.h>
 	char *getenv(const char*name);
 	```
@@ -264,7 +264,7 @@ void test_malloc_realloc()
 
 3.  `putenv/setenv/unsetenv`函数：设置环境变量的值
 
-	```
+	```C++
 	#include<stdlib.h>
 	int putenv(char *str);
 	int setenv(const char *name,const char *value,int rewrite);
@@ -316,32 +316,32 @@ void test_malloc_realloc()
 
 4. 示例：在`main`函数中调用`test_getenv_setenv`函数：
 
-	```
-void test_getenv_setenv()
-{
-    M_TRACE("---------  Begin test_getenv_setenv()  ---------\n");
-    print_environ();
-    //********* 测试 getenv ******//
-    printf("******* test getenv *******\n");
-    My_getenv("HOME");
-    My_getenv("LANG");
-    My_getenv("PATH");
-    //********* 测试 setenv ,putenv ******//
-    printf("\n\n******* test setenv ,putenv *******\n");
-    My_putenv("aaa"); // 不正常的格式
-    My_getenv("aaa");
-    My_putenv("aaa=1"); // 正常的格式
-    My_getenv("aaa");
-    My_setenv("aaa","2",0); // 不覆盖
-    My_getenv("aaa");
-    My_setenv("aaa","2",1); // 覆盖
-    My_getenv("aaa");
-    //********* 测试 unsetenv ******//
-    printf("\n\n******* test unsetenv *******\n");
-    My_unsetenv("bbb"); //不存在
-    My_unsetenv("aaa");
-    M_TRACE("---------  End test_getenv_setenv()  ---------\n\n");
-}
+	```C++
+	void test_getenv_setenv()
+	{
+		M_TRACE("---------  Begin test_getenv_setenv()  ---------\n");
+		print_environ();
+		//********* 测试 getenv ******//
+		printf("******* test getenv *******\n");
+		My_getenv("HOME");
+		My_getenv("LANG");
+		My_getenv("PATH");
+		//********* 测试 setenv ,putenv ******//
+		printf("\n\n******* test setenv ,putenv *******\n");
+		My_putenv("aaa"); // 不正常的格式
+		My_getenv("aaa");
+		My_putenv("aaa=1"); // 正常的格式
+		My_getenv("aaa");
+		My_setenv("aaa","2",0); // 不覆盖
+		My_getenv("aaa");
+		My_setenv("aaa","2",1); // 覆盖
+		My_getenv("aaa");
+		//********* 测试 unsetenv ******//
+		printf("\n\n******* test unsetenv *******\n");
+		My_unsetenv("bbb"); //不存在
+		My_unsetenv("aaa");
+		M_TRACE("---------  End test_getenv_setenv()  ---------\n\n");
+	}
 	```
 
 	![set_get_env](../imgs/progress_env/set_get_env.JPG) 
@@ -357,7 +357,7 @@ void test_getenv_setenv()
 
 2. `setjmp/longjmp`函数：非局部`goto`
 
-	```
+	```C++
 	#include<setjmp.h>
 	int setjmp(jmp_buf env);
 	void longjmp(jmp_buf env,int val);
@@ -390,47 +390,47 @@ void test_getenv_setenv()
 
 3. 示例：在`main`函数中调用`test_setjmp_longjmp`函数：
 
-	```
-void test_setjmp_longjmp()
-{
-    M_TRACE("---------  Begin test_setjmp_longjmp()  ---------\n");
-    char local_char='a'; // 局部变量，用于观察跨 longjmp 之后全局变量是否回滚
+	``` C++
+	void test_setjmp_longjmp()
+	{
+		M_TRACE("---------  Begin test_setjmp_longjmp()  ---------\n");
+		char local_char='a'; // 局部变量，用于观察跨 longjmp 之后全局变量是否回滚
 
-    print_jmp_buf(buf);
-    int val;
-    //********** setjmp ***********//
-    val=setjmp(buf);
-    if(0==val)
-    {
-         printf("setjmp called directly,return %d. global_int=%d,local_char=%c\n",val,global_int,local_char);
-         print_jmp_buf(buf);
-    }
-    else
-    {
-        printf("setjmp called from longjmp,return %d. After longjmp:global_int=%d,local_char=%c\n",val,global_int,local_char);
-        print_jmp_buf(buf);
-    }
-    //*********** longjmp *********//
-    if(0==val)
-    {
-        printf("setjmp must returns 0\n");
-        global_int=19;  // longjmp 之前的 global_int
-        local_char='b'; // longjmp 之前的 local_char
-        printf("longjmp with val=%d.Before longjmp:global_int=%d,local_char=%c\n",1,global_int,local_char);
-        longjmp(buf,1);
-    }else if(1==val)
-    {
-        printf("setjmp must returns 1\n");
-        global_int=29;  // longjmp 之前的 global_int
-        local_char='c'; // longjmp 之前的 local_char
-        printf("longjmp with val=%d.Before longjmp:global_int=%d,local_char=%c\n",1,global_int,local_char);
-        longjmp(buf,2);
-    }else
-    {
-        printf("setjmp must returns no 0,1\n");
-    }
-    M_TRACE("---------  End test_setjmp_longjmp()  ---------\n\n");
-}
+		print_jmp_buf(buf);
+		int val;
+		//********** setjmp ***********//
+		val=setjmp(buf);
+		if(0==val)
+		{
+			printf("setjmp called directly,return %d. global_int=%d,local_char=%c\n",val,global_int,local_char);
+			print_jmp_buf(buf);
+		}
+		else
+		{
+			printf("setjmp called from longjmp,return %d. After longjmp:global_int=%d,local_char=%c\n",val,global_int,local_char);
+			print_jmp_buf(buf);
+		}
+		//*********** longjmp *********//
+		if(0==val)
+		{
+			printf("setjmp must returns 0\n");
+			global_int=19;  // longjmp 之前的 global_int
+			local_char='b'; // longjmp 之前的 local_char
+			printf("longjmp with val=%d.Before longjmp:global_int=%d,local_char=%c\n",1,global_int,local_char);
+			longjmp(buf,1);
+		}else if(1==val)
+		{
+			printf("setjmp must returns 1\n");
+			global_int=29;  // longjmp 之前的 global_int
+			local_char='c'; // longjmp 之前的 local_char
+			printf("longjmp with val=%d.Before longjmp:global_int=%d,local_char=%c\n",1,global_int,local_char);
+			longjmp(buf,2);
+		}else
+		{
+			printf("setjmp must returns no 0,1\n");
+		}
+		M_TRACE("---------  End test_setjmp_longjmp()  ---------\n\n");
+	}
 	```
 	![longjump](../imgs/progress_env/longjump.JPG)
 
@@ -440,7 +440,7 @@ void test_setjmp_longjmp()
 
 1. 每个进程都有一组资源限制，其中一些可以通过`getrlimit/setrlimit`函数查询和修改：
 
-	```
+	```C++
 	#include<sys/resource.h>
 	int getrlimit(int resource,struct rlimit *rlptr);
 	int setrlimit(int resource,struct rlimit *rlptr);
@@ -454,7 +454,7 @@ void test_setjmp_longjmp()
 
 	其中`struct rlimit`为：
 
-	```
+	```C++
 	struct rlimit{
 		rlim_t rlim_cur; //软限制：当前的限制值
 		rlim_t rlim_max; //硬限制：最大值
@@ -487,29 +487,29 @@ void test_setjmp_longjmp()
 
 2. 示例：在`main`函数中调用`test_getrlimit_setrlimit`函数：
 
-	```
-void test_getrlimit_setrlimit()
-{
-    M_TRACE("---------  Begin test_getrlimit_setrlimit()  ---------\n");
-    struct rlimit buf;
-    //************ 测试 getrlimit ***********//
-    printf("*********** test getrlimit ***********\n");
-    My_getrlimit(RLIMIT_CORE,&buf);
-    My_getrlimit(RLIMIT_CPU,&buf);
-    My_getrlimit(RLIMIT_FSIZE,&buf);
-    My_getrlimit(RLIMIT_MEMLOCK,&buf);
-    My_getrlimit(RLIMIT_MSGQUEUE,&buf);
-    My_getrlimit(RLIMIT_NICE,&buf);
-    My_getrlimit(RLIMIT_NPROC,&buf);
-    My_getrlimit(RLIMIT_SIGPENDING,&buf);
-    //************ 测试 setrlimit ***********//
-    printf("\n\n*********** test getrlimit ***********\n");
-    buf.rlim_cur=1;
-    buf.rlim_max=10;
-    My_setrlimit(RLIMIT_NICE,&buf);
-    My_getrlimit(RLIMIT_NICE,&buf);
-    M_TRACE("---------  End test_getrlimit_setrlimit()  ---------\n\n");
-}
+	```C++
+	void test_getrlimit_setrlimit()
+	{
+		M_TRACE("---------  Begin test_getrlimit_setrlimit()  ---------\n");
+		struct rlimit buf;
+		//************ 测试 getrlimit ***********//
+		printf("*********** test getrlimit ***********\n");
+		My_getrlimit(RLIMIT_CORE,&buf);
+		My_getrlimit(RLIMIT_CPU,&buf);
+		My_getrlimit(RLIMIT_FSIZE,&buf);
+		My_getrlimit(RLIMIT_MEMLOCK,&buf);
+		My_getrlimit(RLIMIT_MSGQUEUE,&buf);
+		My_getrlimit(RLIMIT_NICE,&buf);
+		My_getrlimit(RLIMIT_NPROC,&buf);
+		My_getrlimit(RLIMIT_SIGPENDING,&buf);
+		//************ 测试 setrlimit ***********//
+		printf("\n\n*********** test getrlimit ***********\n");
+		buf.rlim_cur=1;
+		buf.rlim_max=10;
+		My_setrlimit(RLIMIT_NICE,&buf);
+		My_getrlimit(RLIMIT_NICE,&buf);
+		M_TRACE("---------  End test_getrlimit_setrlimit()  ---------\n\n");
+	}
 	```
 
 	![getrlimit](../imgs/progress_env/getrlimit.JPG) 

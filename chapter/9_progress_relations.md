@@ -51,7 +51,7 @@
 
 2. `getpgrp/getpgid`函数：获取进程所属的进程组：
 
-	```
+	```C++
 	#include<unistd.h>
 	pid_t getpgrp(void);
 	pid_t getpgid(pid_t pid);
@@ -64,25 +64,25 @@
 
 3. 示例：在`main`函数中调用`test_getpgrp_getpgid`函数:
 
-	```
-void test_getpgrp_getpgid()
-{
-    M_TRACE("---------  Begin test_getpgrp_getpgid()  ---------\n");
-    create_child();
-    // 只有父进程能到达此处
-    check_waitpid();
-    print_pid();
-    print_parent_pid();
-    My_getpgrp(); // 父进程自己
-    My_getpgid(getppid());// 父进程的父进程
-    M_TRACE("---------  End test_getpgrp_getpgid()  ---------\n\n");
-}
+	```C++
+	void test_getpgrp_getpgid()
+	{
+		M_TRACE("---------  Begin test_getpgrp_getpgid()  ---------\n");
+		create_child();
+		// 只有父进程能到达此处
+		check_waitpid();
+		print_pid();
+		print_parent_pid();
+		My_getpgrp(); // 父进程自己
+		My_getpgid(getppid());// 父进程的父进程
+		M_TRACE("---------  End test_getpgrp_getpgid()  ---------\n\n");
+	}
 	```
 	![get_process_group_id](../imgs/progress_relations/get_process_group_id.JPG)
 
 4. `setpgid`函数：加入一个现有的进程组或者创建一个新进程组
 
-	```
+	```C++
 	#include<unistd.h>
 	int setpgid(pid_t pid,pid_t pgid);
 	```
@@ -104,18 +104,18 @@ void test_getpgrp_getpgid()
 
 5. 示例：在`main`函数中调用`test_setpgid`函数：
 
-	```
-void test_setpgid()
-{
-    M_TRACE("---------  Begin test_setpgid()  ---------\n");
-    create_child();
-    // 只有父进程能到达此处
-    check_waitpid();
-    print_pid();
-    print_parent_pid();
-    My_getpgrp(); // 父进程自己
-    M_TRACE("---------  End test_setpgid()  ---------\n\n");
-}
+	```C++
+	void test_setpgid()
+	{
+		M_TRACE("---------  Begin test_setpgid()  ---------\n");
+		create_child();
+		// 只有父进程能到达此处
+		check_waitpid();
+		print_pid();
+		print_parent_pid();
+		My_getpgrp(); // 父进程自己
+		M_TRACE("---------  End test_setpgid()  ---------\n\n");
+	}
 	```
   	![setpgid](../imgs/progress_relations/setpgid.JPG)
 
@@ -125,7 +125,7 @@ void test_setpgid()
 
 2. `setsid`函数：创建一个新会话
 
-	```
+	```C++
 	#include<unistd.h>
 	pid_t setsid(void);
 	```
@@ -144,7 +144,7 @@ void test_setpgid()
 
 3. `getsid`函数：返回进程所在的会话`ID`（会话`ID`等于会话首进程的进程组ID，会话首进程总是进程组的组长进程，因此它也等于会话首进程的进程ID）
 
-	```
+	```C++
 	#include<unistd.h>
 	pid_t getsid(pid_t pid);
 	```
@@ -158,21 +158,21 @@ void test_setpgid()
 
 4. 示例：在`main`函数中调用`test_getsid_setsid`函数：
 
-	```
-void test_getsid_setsid()
-{
-    M_TRACE("---------  Begin test_getsid_setsid()  ---------\n");
-    create_child();
-    // 只有父进程能到达此处
-    check_waitpid();
-    print_pid();
-    print_parent_pid();
-    My_getpgid(0);
-    My_getsid(0);
-    My_setsid();
-    My_getsid(0);
-    M_TRACE("---------  End test_getsid_setsid()  ---------\n\n");
-}
+	```C++
+	void test_getsid_setsid()
+	{
+		M_TRACE("---------  Begin test_getsid_setsid()  ---------\n");
+		create_child();
+		// 只有父进程能到达此处
+		check_waitpid();
+		print_pid();
+		print_parent_pid();
+		My_getpgid(0);
+		My_getsid(0);
+		My_setsid();
+		My_getsid(0);
+		M_TRACE("---------  End test_getsid_setsid()  ---------\n\n");
+	}
 	```
   	![session_id](../imgs/progress_relations/session_id.JPG)
 	可以看到：
@@ -195,7 +195,7 @@ void test_getsid_setsid()
 
 2.  `tcgetpgrp/tcsetpgrp`函数：获取/设置当前进程所在会话的前台进程组ID
 
-	```
+	```C++
 	#include<unistd.h>
 	pid_t tcgetpgrp(int fd);
 	int tcsetpgrp(int fd,pid_t pgrpid);
@@ -216,7 +216,7 @@ void test_getsid_setsid()
 
 3. `tcgetsid`函数：获取会话首进程的进程组ID（也就是会话ID）
 
-	```
+	```C++
 	#include<termios.hh>
 	pid_t tcgetsid(int fd);
 	```
@@ -231,18 +231,18 @@ void test_getsid_setsid()
 4. 示例：在`main`函数中调用`test_tcgetpgrp_tcsetpgrp`函数：
 
 
-	```
-void test_tcgetpgrp_tcsetpgrp()
-{
-    M_TRACE("---------  Begin test_tcgetpgrp_tcsetpgrp()  ---------\n");
-    create_child();
-    // 只有父进程能到达此处
-    check_waitpid();
-    print_pid();
-    print_parent_pid();
-    My_getpgrp(); // 父进程自己
-    M_TRACE("---------  End test_tcgetpgrp_tcsetpgrp()  ---------\n\n");
-}
+	```C++
+	void test_tcgetpgrp_tcsetpgrp()
+	{
+		M_TRACE("---------  Begin test_tcgetpgrp_tcsetpgrp()  ---------\n");
+		create_child();
+		// 只有父进程能到达此处
+		check_waitpid();
+		print_pid();
+		print_parent_pid();
+		My_getpgrp(); // 父进程自己
+		M_TRACE("---------  End test_tcgetpgrp_tcsetpgrp()  ---------\n\n");
+	}
 	```
   	![control_terminal](../imgs/progress_relations/control_terminal.JPG) 
 	可以看到：
