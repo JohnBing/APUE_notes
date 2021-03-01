@@ -18,7 +18,7 @@
 
 3. `fwide`函数：设置流的定向
 
-	```
+	```C++
 	#include<stdio.h>
 	#include<wchar.h>
 	int fwide(FILE *fp,int mode);
@@ -78,7 +78,7 @@
 
 8. `setbuf/setvbuf`函数：设置流的缓冲类型
 	
-	```
+	```C++
 	#include<stdio.h>
 	void setbuf(FILE *restrict fp,char *restrict buf);
 	int setvbuf(FILE *restrict fp,char* restrict buf,int mode,size_t size);
@@ -109,7 +109,7 @@
 
 9. `fflush`函数：手动冲洗一个流
 
-	```
+	```C++
 	#include<stdio.h>
 	int fflush(FILE *fp);
 	```
@@ -128,7 +128,7 @@
 
 1. `fopen/freopen/fdopen`函数：打开标准IO流
 	
-	```
+	```C++
 	#include<stdio.h>
 	FILE *fopen(const char*restrict pathname,const char*restrict type);
 	FILE *freopen(const char*restrict pathname,const char*restrict type,\
@@ -175,7 +175,7 @@
 
 2. `fclose`：关闭一个打开的流
 
-	```
+	```C++
 	#include<stdio.h>
 	int fclose(FILE *fp);
 	```
@@ -196,39 +196,39 @@
 
 3. 示例:在 `main`函数中调用 `test_fopen_fwide_setvbuf`函数：
 
-	```
-void test_fopen_fwide_setvbuf()
-{
-    M_TRACE("---------  Begin test_fopen_fwide_setvbuf()  ---------\n");
-    assert(prepare_file("test",NULL,0,S_IRWXU)==0);
+	```C++
+	void test_fopen_fwide_setvbuf()
+	{
+		M_TRACE("---------  Begin test_fopen_fwide_setvbuf()  ---------\n");
+		assert(prepare_file("test",NULL,0,S_IRWXU)==0);
 
-    My_fwide(stdin,0); //打印 stdin 的流向
-    My_fwide(stdout,0); //打印 stdout 的流向
-    My_fwide(stderr,0); //打印 stderr 的流向
-    print_FILE(stdin); //打印 stdin 结构
-    print_FILE(stdout); //打印 stdout 结构
-    print_FILE(stderr); //打印 stderr 结构
+		My_fwide(stdin,0); //打印 stdin 的流向
+		My_fwide(stdout,0); //打印 stdout 的流向
+		My_fwide(stderr,0); //打印 stderr 的流向
+		print_FILE(stdin); //打印 stdin 结构
+		print_FILE(stdout); //打印 stdout 结构
+		print_FILE(stderr); //打印 stderr 结构
 
-    FILE *fp=My_fopen("test","r+");
-    if(NULL!=fp)
-    {
-        My_fwide(fp,0); //打印 fp 的流向
-        My_fwide(fp,-1); //设置 fp 为字节流 然后打印 fp 的流向
-        My_fwide(fp,1); //无法修改已定向的流
-        print_FILE(fp);
-        //**** 设置不同的缓冲 ****//
-        set_full_buf(fp);
-        print_FILE(fp);
-        set_line_buf(fp);
-        print_FILE(fp);
-        set_no_buf(fp);
-        print_FILE(fp);
+		FILE *fp=My_fopen("test","r+");
+		if(NULL!=fp)
+		{
+			My_fwide(fp,0); //打印 fp 的流向
+			My_fwide(fp,-1); //设置 fp 为字节流 然后打印 fp 的流向
+			My_fwide(fp,1); //无法修改已定向的流
+			print_FILE(fp);
+			//**** 设置不同的缓冲 ****//
+			set_full_buf(fp);
+			print_FILE(fp);
+			set_line_buf(fp);
+			print_FILE(fp);
+			set_no_buf(fp);
+			print_FILE(fp);
 
-        fclose(fp); //关闭流
-    }
-    un_prepare_file("test");
-    M_TRACE("---------  End test_fopen_fwide_setvbuf()  ---------\n\n");
-}
+			fclose(fp); //关闭流
+		}
+		un_prepare_file("test");
+		M_TRACE("---------  End test_fopen_fwide_setvbuf()  ---------\n\n");
+	}
 	```
 	![FILE_struct](../imgs/std_IO/FILE_struct.JPG)
 
@@ -249,7 +249,7 @@ void test_fopen_fwide_setvbuf()
 
 2. `getc/fgetc/getchar`函数：一次读一个字符：
 
-	```
+	```C++
 	#include<stdio.h>
 	int getc(FILE*fp);
 	int fgetc(FILE*fp);
@@ -273,7 +273,7 @@ void test_fopen_fwide_setvbuf()
 
 3. `ferror/feof`函数：查看是读文件出错，还是到达读文件遇到尾端
 
-	```
+	```C++
 	#include<stdio.h>
 	int ferror(FILE *fp);
 	int feof(FILE *fp);
@@ -288,7 +288,7 @@ void test_fopen_fwide_setvbuf()
 
 4. `clearerr`函数：清除文件出错标志和文件结束标志
 
-	```
+	```C++
 	#include<stdio.h>
 	void clearerr(FILE *fp)
 	```
@@ -303,7 +303,7 @@ void test_fopen_fwide_setvbuf()
 
 5. `ungetc`函数：将字符压回流中
 
-	```
+	```C++
 	#include<stdio.h>
 	int ungetc(int c,FILE *fp);
 	```
@@ -324,7 +324,7 @@ void test_fopen_fwide_setvbuf()
 
 6. `putc/fputc/putchar`函数：一次写一个字符
 
-	```
+	```C++
 	#include<stdio.h>
 	int putc(int c,FILE*fp);
 	int fputc(int c,FILE*fp);
@@ -343,7 +343,7 @@ void test_fopen_fwide_setvbuf()
 
 7. `fgets/gets`函数：一次读一行字符：
 
-	```
+	```C++
 	#include<stdio.h>
 	char *fgets(char *restrict buf,int n, FILE* restrict fp);
 	char *gets(char *buf);
@@ -369,7 +369,7 @@ void test_fopen_fwide_setvbuf()
 
 8. `fputs/puts`函数：一次写一行字符：
 
-	```
+	```C++
 	#include<stdio.h>
 	int fputs(const char* restrict str,FILE*restrict fp);
 	int puts(const char*str);
@@ -388,11 +388,11 @@ void test_fopen_fwide_setvbuf()
 	
 9. `fread/fwrite`函数：执行二进制读写IO
 
-	```
+	```C++
 	#include<stdio.h>
 	size_t fread(void *restrict ptr,size_t size,size_t nobj,FILE *restrict fp);
 	size_t fwrite(const void*restrict ptr,size_t size,size_t nobj,FILE *restrict fp);
-	```	
+	```
 	- 参数：
 		- `ptr`:存放二进制数据对象的缓冲区地址
 		- `size`：单个二进制数据对象的字节数（比如一个`struct`的大小）
@@ -412,7 +412,7 @@ void test_fopen_fwide_setvbuf()
 
 	- 通过 `ftell/fseek`函数：
 
-		```
+		```C++
 		#include<stdio.h>
 		long ftell(FILE *fp);
 		```
@@ -423,7 +423,7 @@ void test_fopen_fwide_setvbuf()
 		
 			若是二进制文件，则文件指示器是从文件开始位置度量的，并以字节为度量单位。`ftell`就是返回这种字节位置。
 
-		```
+		```C++
 		#include<stdio.h>
 		int fseek(FILE *fp,long offset,int whence);
 		```
@@ -440,7 +440,7 @@ void test_fopen_fwide_setvbuf()
 
 			> 原书说，对文本文件和二进制文件，`fseek`定位有某些限制。但是经过在`ubuntu 16.04`上测试，可以任意定位。并没有要求说不能定位到文件尾端，以及必须用`SEEK_SET`等诸多限制。
 
-		```
+		```C++
 		#include<stdio.h>
 		void rewind(FILE *fp);
 		```
@@ -451,7 +451,7 @@ void test_fopen_fwide_setvbuf()
 
 	- 通过 `ftello/fseeko`函数：除了偏移量类型为`off_t`而不是`long`以外，`ftello/fseeko`与`ftell/fseek`相同
 
-		```
+		```C++
 		#include<stdio.h>
 		off_t ftello(FILE *fp);
 		```
@@ -460,7 +460,7 @@ void test_fopen_fwide_setvbuf()
 			- 成功：返回当前文件位置指示
 			- 失败：返回 (off_t)-1
 		
-		```
+		```C++
 		#include<stdio.h>
 		int fseeko(FILE *fp,off_t offset,int whence);
 		```
@@ -477,7 +477,7 @@ void test_fopen_fwide_setvbuf()
 
 	- `fgetpos/fsetpos`函数：由 ISO C 引入
 
-		```
+		```C++
 		#include<stdio.h>
 		int fgetpos(FILE *restrict fp,fpos_t *restrict pos);
 		int fsetpos(FILE * fp,const fpos_t * pos);
@@ -491,38 +491,38 @@ void test_fopen_fwide_setvbuf()
 
 11. 示例:在`main`函数中调用`test_get_put_seek` 函数：
 
-	```
-void test_get_put_seek()
-{
-    M_TRACE("---------  Begin test_get_put_seek()  ---------\n");
-    assert(prepare_file("test_char",NULL,0,S_IRWXU)==0);
-    assert(prepare_file("test_line",NULL,0,S_IRWXU)==0);
-    assert(prepare_file("test_binary",NULL,0,S_IRWXU)==0);
+	```C++
+	void test_get_put_seek()
+	{
+		M_TRACE("---------  Begin test_get_put_seek()  ---------\n");
+		assert(prepare_file("test_char",NULL,0,S_IRWXU)==0);
+		assert(prepare_file("test_line",NULL,0,S_IRWXU)==0);
+		assert(prepare_file("test_binary",NULL,0,S_IRWXU)==0);
 
-    FILE *file_char=My_fopen("test_char","r+");
-    FILE *file_line=My_fopen("test_line","r+");
-    FILE *file_binary=My_fopen("test_binary","rb+");
+		FILE *file_char=My_fopen("test_char","r+");
+		FILE *file_line=My_fopen("test_line","r+");
+		FILE *file_binary=My_fopen("test_binary","rb+");
 
-    if((file_char!=NULL) && (file_line!=NULL) && (file_binary!=NULL))
-    {
-        printf("***** test read write char*****\n");
-        _test_read_write_char(file_char);
-        printf("\n\n***** test read write str*****\n");
-        _test_read_write_line(file_line);
-        printf("\n\n***** test read write binary*****\n");
-        _test_read_write_binary(file_binary);
-    }
+		if((file_char!=NULL) && (file_line!=NULL) && (file_binary!=NULL))
+		{
+			printf("***** test read write char*****\n");
+			_test_read_write_char(file_char);
+			printf("\n\n***** test read write str*****\n");
+			_test_read_write_line(file_line);
+			printf("\n\n***** test read write binary*****\n");
+			_test_read_write_binary(file_binary);
+		}
 
-    //*** 关闭文件  ***//
-    if(file_char!=NULL) fclose(file_char);
-    if(file_line!=NULL) fclose(file_line);
-    if(file_binary!=NULL) fclose(file_binary);
+		//*** 关闭文件  ***//
+		if(file_char!=NULL) fclose(file_char);
+		if(file_line!=NULL) fclose(file_line);
+		if(file_binary!=NULL) fclose(file_binary);
 
-    un_prepare_file("test_char");
-    un_prepare_file("test_line");
-    un_prepare_file("test_binary");
-    M_TRACE("---------  End test_get_put_seek()  ---------\n\n");
-}
+		un_prepare_file("test_char");
+		un_prepare_file("test_line");
+		un_prepare_file("test_binary");
+		M_TRACE("---------  End test_get_put_seek()  ---------\n\n");
+	}
 	```
 	![FILE_read_write_seek](../imgs/std_IO/FILE_read_write_seek.JPG)
 
@@ -530,7 +530,7 @@ void test_get_put_seek()
 
 1. 格式化输出函数：
 
-	```
+	```C++
 	#include<stdio.h>
 	int printf(const char *restrict format,...);
 	int fprintf(FILE *restrict fp,const char*restrict format,...);
@@ -603,7 +603,7 @@ void test_get_put_seek()
 
 3. `printf`族的变体：将可变参数`(...)`替换成了`va_list arg`:
 
-	```
+	```C++
 	#include<stdarg.h>
 	#include<stdio.h>
 	int vprintf(const char *restrict format,va_list arg);
@@ -617,7 +617,7 @@ void test_get_put_seek()
 
 4. 格式化输入函数：
 
-	```
+	```C++
 	#include<stdio.h>
 	int scanf(const char*restrict format,...);
 	int fscanf(FILE *restrict fp,const char *restrict format,...);
@@ -647,7 +647,7 @@ void test_get_put_seek()
 
 5. `scanf`族也有一类变体：将可变参数`(...)`替换成了`va_list arg`:
 
-	```
+	```C++
 	#include<stdarg.h>
 	#include<stdio.h>
 	int vscanf(const char*restrict format,va_list arg);
@@ -658,20 +658,20 @@ void test_get_put_seek()
 6. 示例： 在 `main`函数中调用`test_printf_scanf`函数：
 
 
-	```
-void test_printf_scanf()
-{
-    M_TRACE("---------  Begin test_printf_scanf()  ---------\n");
-    printf("**** test printf  *******\n");
-    _test_printf();
-    printf("\n\n**** test snprintf  *******\n");
-    _test_snprintf();
-    printf("\n\n**** test scanf  *******\n");
-    _test_scanf();
-    printf("\n\n**** test sscanf  *******\n");
-    _test_sscanf();
-    M_TRACE("---------  End test_printf_scanf()  ---------\n\n");
-}
+	```C++
+	void test_printf_scanf()
+	{
+		M_TRACE("---------  Begin test_printf_scanf()  ---------\n");
+		printf("**** test printf  *******\n");
+		_test_printf();
+		printf("\n\n**** test snprintf  *******\n");
+		_test_snprintf();
+		printf("\n\n**** test scanf  *******\n");
+		_test_scanf();
+		printf("\n\n**** test sscanf  *******\n");
+		_test_sscanf();
+		M_TRACE("---------  End test_printf_scanf()  ---------\n\n");
+	}
 	```	
 	![print_scan](../imgs/std_IO/print_scan.JPG) 
 
@@ -679,7 +679,7 @@ void test_printf_scanf()
 
 1. `fileno`函数：获取文件对象的文件描述符
 	
-	```
+	```C++
 	#include<stdio.h>
 	int fileno(FILE *fp);
 	```
@@ -689,7 +689,7 @@ void test_printf_scanf()
 
 2. `tmpnam/tmpfile`函数：创建临时文件	
 
-	```
+	```C++
 	#include<stdio.h>
 	char *tmpnam(char *ptr);
 	FILE *tmpfile(void);
@@ -712,7 +712,7 @@ void test_printf_scanf()
 
 3. `mkdtemp/mkstemp`函数：创建临时文件（由SUS 标准给出）
 
-	```
+	```C++
 	#include<stdlib.h>
 	char *mkdtemp(char *template);
 	int mkstemp(char *template);
@@ -734,16 +734,16 @@ void test_printf_scanf()
 
 4. 示例：在`main`函数中调用`test_tmpnam_mkdtemp`函数：
 
-	```
-void test_tmpnam_mkdtemp()
-{
-    M_TRACE("---------  Begin test_printf_scanf()  ---------\n");
-    printf("******** test tmpnam ********\n");
-    _test_tmpnam();
-    printf("\n\n******** test mkdtemp ********\n");
-    _test_mkdtemp();
-    M_TRACE("---------  End test_printf_scanf()  ---------\n\n");
-}
+	```C++
+	void test_tmpnam_mkdtemp()
+	{
+		M_TRACE("---------  Begin test_printf_scanf()  ---------\n");
+		printf("******** test tmpnam ********\n");
+		_test_tmpnam();
+		printf("\n\n******** test mkdtemp ********\n");
+		_test_mkdtemp();
+		M_TRACE("---------  End test_printf_scanf()  ---------\n\n");
+	}
 	```
 
 	![make_temp_file](../imgs/std_IO/make_temp_file.JPG) 
@@ -753,7 +753,7 @@ void test_tmpnam_mkdtemp()
 
 	- 创建内存流：
 
-		```
+		```C++
 		#include<stdio.h>
 		FILE *fmemopen(void *restrict buf,size_t size,const char *restrict type);
 		```
@@ -780,7 +780,7 @@ void test_tmpnam_mkdtemp()
 		- 任何时候需要增加流缓冲区中数据流以及调用`fclose、fflush、fseek、fseeko、fsetpos`时都会在当前位置写入一个`null`字节
 	- 创建内存流的其他两个函数：
 
-		```
+		```C++
 		#include<stdio.h>
 		FILE *open_memstream(char **bufp,size_t *sizep);
 		#include <wchar.h>
@@ -805,39 +805,39 @@ void test_tmpnam_mkdtemp()
 
 6. 示例：在`main`函数中调用`test_memstream`函数：
 
-	```
-void test_memstream()
-{
-    M_TRACE("---------  Begin test_memstream()  ---------\n");
-    char mem_buffer[16];
-    FILE *fp=My_fmemopen(mem_buffer,16,"r+");
-    if(NULL!=fp)
-    {
+	```C++
+	void test_memstream()
+	{
+		M_TRACE("---------  Begin test_memstream()  ---------\n");
+		char mem_buffer[16];
+		FILE *fp=My_fmemopen(mem_buffer,16,"r+");
+		if(NULL!=fp)
+		{
 
-        char read_write_buffer[8];
-        My_ftello(fp);   // 查看当前位置
-        //**** 写入 ****//
-        My_fputs("abcdefg\n",fp); // 每次7个字符加一个换行符
-        My_fputs("0123456789",fp); // 没有换行符
-        My_ftello(fp);   // 查看当前位置
-        fflush(fp);
-        print_char_buffer(mem_buffer,16);
-        //**** 读取 ****//
-        My_fseeko(fp,0,SEEK_SET); //重定位到文件头
-        My_ftello(fp); // 查看当前位置
-        My_fgets(read_write_buffer,8,fp); // 读取 abcdefg
-        My_fgets(read_write_buffer,8,fp); // 读取 \n
-        My_fgets(read_write_buffer,8,fp);// 读取 0123456，文件指针指向 null 字节
-        My_fgets(read_write_buffer,8,fp);// 遇到 EOF，即 null 字节 （最后一个字节为 null 字节，因此有效字节只有15个字节）
-        My_ftello(fp); // 查看当前位置，文件指针指向最后一个字节的下一个字节
-        My_fgets(read_write_buffer,8,fp);// 遇到 EOF，此时读取返回 EOF，并且是 ferror 返回真，且 feof 返回真
-        printf("feof=%d,ferror=%d\n",feof(fp),ferror(fp)); //ferror 返回真，且 feof 返回真
+			char read_write_buffer[8];
+			My_ftello(fp);   // 查看当前位置
+			//**** 写入 ****//
+			My_fputs("abcdefg\n",fp); // 每次7个字符加一个换行符
+			My_fputs("0123456789",fp); // 没有换行符
+			My_ftello(fp);   // 查看当前位置
+			fflush(fp);
+			print_char_buffer(mem_buffer,16);
+			//**** 读取 ****//
+			My_fseeko(fp,0,SEEK_SET); //重定位到文件头
+			My_ftello(fp); // 查看当前位置
+			My_fgets(read_write_buffer,8,fp); // 读取 abcdefg
+			My_fgets(read_write_buffer,8,fp); // 读取 \n
+			My_fgets(read_write_buffer,8,fp);// 读取 0123456，文件指针指向 null 字节
+			My_fgets(read_write_buffer,8,fp);// 遇到 EOF，即 null 字节 （最后一个字节为 null 字节，因此有效字节只有15个字节）
+			My_ftello(fp); // 查看当前位置，文件指针指向最后一个字节的下一个字节
+			My_fgets(read_write_buffer,8,fp);// 遇到 EOF，此时读取返回 EOF，并且是 ferror 返回真，且 feof 返回真
+			printf("feof=%d,ferror=%d\n",feof(fp),ferror(fp)); //ferror 返回真，且 feof 返回真
 
-        print_char_buffer(mem_buffer,16); // 读取并不会删除 mem_buffer 中的内容
-        fclose(fp);
-    }
-    M_TRACE("---------  End test_memstream()  ---------\n\n");
-}
+			print_char_buffer(mem_buffer,16); // 读取并不会删除 mem_buffer 中的内容
+			fclose(fp);
+		}
+		M_TRACE("---------  End test_memstream()  ---------\n\n");
+	}
 	```
 
 	![mem_FILE_stream](../imgs/std_IO/mem_FILE_stream.JPG) 

@@ -23,7 +23,7 @@
 	
 	我们可以将 LINUX 操作系统中的 `man`手册用中文的`man`替代。方法为（UBUNTU操作系统下）：
 
-	```
+	```s
 	sudo apt-get install manpages-zh
 	sudo vi /etc/manpath.config
 	```
@@ -60,7 +60,7 @@
 
 2. `strerror/perror`函数:用于处理错误信息
 
-	```
+	```C++
 	#include<string.h>
 	char *strerror(int errnum);
 	#include<stdio.h>

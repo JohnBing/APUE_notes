@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-01-30 17:17:56
+ * @LastEditTime: 2021-03-01 17:01:42
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \APUE_notes\chapter\2_UNIX_Standard.md
+-->
 # UNIX 标准及实现
 
 ## UNIX 标准
@@ -44,7 +52,7 @@
 
 6. 获取运行时限制：
 
-	```
+	```c
 	#include<unistd.h>
 	long sysconf(int name); 
 	long pathconf(const char*pathname,int name);
