@@ -33,7 +33,7 @@
 
 3. `pthread_equal`函数：判断两个线程`ID`是否相等
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_equal(pthread_t tid1,pthread tid2);
 	```
@@ -48,7 +48,7 @@
 
 4. `pthread_self(void)`函数：返回本线程自身的线程`ID`
 
-	```
+	```C++
 	#include<pthread.h>
 	pthread_t pthread_self(void);
 	```
@@ -58,7 +58,7 @@
 
 6. `pthread_create`函数：创建新线程
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_create(pthread_t *restrict tidp,
 		const pthread_attr_t *restrict attr,
@@ -80,24 +80,24 @@
 	- 新创建的线程可以访问进程的地址空间，并继承了调用线程的浮点环境和信号屏蔽字，但是该线程的挂起信号集会被清除
 7. 示例：在`main`函数中调用`test_thread_create`函数：
 
-	```
-void test_thread_create()
-{
-    M_TRACE("---------  Begin test_thread_create()  ---------\n");
-    //******** 创建子线程 *********//
-    pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
-    pthread_t threads[3];
-    for(int i=0;i<3;i++)
-        My_pthread_create(threads+i,NULL,thread_func,i);
-     pthread_mutex_unlock(&mutex);
-    //******** 等待子线程结束 *********//
-    int values[3];
-    for(int i=0;i<3;i++)
-    {
-        thread_join_int(threads[i],values+i);
-    }
-    M_TRACE("---------  End test_thread_create()  ---------\n\n");
-}
+	```C++
+	void test_thread_create()
+	{
+		M_TRACE("---------  Begin test_thread_create()  ---------\n");
+		//******** 创建子线程 *********//
+		pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
+		pthread_t threads[3];
+		for(int i=0;i<3;i++)
+			My_pthread_create(threads+i,NULL,thread_func,i);
+		pthread_mutex_unlock(&mutex);
+		//******** 等待子线程结束 *********//
+		int values[3];
+		for(int i=0;i<3;i++)
+		{
+			thread_join_int(threads[i],values+i);
+		}
+		M_TRACE("---------  End test_thread_create()  ---------\n\n");
+	}
 	```
 	![create_thread](../imgs/thread/create_thread.JPG)
 
@@ -124,7 +124,7 @@ void test_thread_create()
 
 11. `pthread_exit`函数：线程主动退出
 
-	```
+	```C++
 	#include<pthread.h>
 	void pthread_exit(void *rval_ptr);
 	```
@@ -133,7 +133,7 @@ void test_thread_create()
 
 12. `pthread_join`函数：等待指定的线程结束（类似于`waitpid`）
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_join(pthread_t tid,void **rval_pptr);
 	```
@@ -155,7 +155,7 @@ void test_thread_create()
 
 13. `pthread_cancel`函数：请求取消同一个进程中的其他某个线程
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_cancel(pthread_t tid);
 	```
@@ -170,26 +170,26 @@ void test_thread_create()
 
 14. 示例：在`main`函数中调用`test_thread_quit`函数：
 
- 	```
-void test_thread_quit()
-{
-    M_TRACE("---------  Begin test_thread_quit()  ---------\n");
-    //******** 创建子线程 *********//
-    pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
-    pthread_t threads[3];
-    My_pthread_create(threads+0,NULL,thread_func_return,(void*)0);
-    My_pthread_create(threads+1,NULL,thread_func_exit,(void*)1);
-    My_pthread_create(threads+2,NULL,thread_func_exit,(void*)2);
-    pthread_mutex_unlock(&mutex);
-    My_pthread_cancel(threads[2]) ; // 取消最后一个子线程
-    //******** 等待子线程结束 *********//
-    int values[3];
-    for(int i=0;i<3;i++)
-    {
-        thread_join_int(threads[i],values+i);
-    }
-    M_TRACE("---------  End test_thread_quit()  ---------\n\n");
-}
+ 	```C++
+	void test_thread_quit()
+	{
+		M_TRACE("---------  Begin test_thread_quit()  ---------\n");
+		//******** 创建子线程 *********//
+		pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
+		pthread_t threads[3];
+		My_pthread_create(threads+0,NULL,thread_func_return,(void*)0);
+		My_pthread_create(threads+1,NULL,thread_func_exit,(void*)1);
+		My_pthread_create(threads+2,NULL,thread_func_exit,(void*)2);
+		pthread_mutex_unlock(&mutex);
+		My_pthread_cancel(threads[2]) ; // 取消最后一个子线程
+		//******** 等待子线程结束 *********//
+		int values[3];
+		for(int i=0;i<3;i++)
+		{
+			thread_join_int(threads[i],values+i);
+		}
+		M_TRACE("---------  End test_thread_quit()  ---------\n\n");
+	}
 	```
 	![thread_quit](../imgs/thread/thread_quit.JPG)
 
@@ -201,7 +201,7 @@ void test_thread_quit()
 
 	`pthread_clearnup_push/pthread_cleanup_pop`函数：注册与注销清理处理程序
 
-	```
+	```C++
 	#include<pthread.h>
 	void pthread_cleanup_push(void (*rtn)(void*),void *arg);
 	void pthread_cleanup_pop(int execute);
@@ -224,18 +224,18 @@ void test_thread_quit()
 
 16. 示例：在`main`函数中调用`test_thread_clean`函数：
 
-	```
-void test_thread_clean()
-{
-    M_TRACE("---------  Begin test_thread_clean()  ---------\n");
-    //******** 创建子线程 *********//
-    pthread_t thread;
-    My_pthread_create(&thread,NULL,thread_func,100);
-    //******** 等待子线程结束 *********//
-    int value;
-    thread_join_int(thread,&value);
-    M_TRACE("---------  End test_thread_clean()  ---------\n\n");
-}
+	```C++
+	void test_thread_clean()
+	{
+		M_TRACE("---------  Begin test_thread_clean()  ---------\n");
+		//******** 创建子线程 *********//
+		pthread_t thread;
+		My_pthread_create(&thread,NULL,thread_func,100);
+		//******** 等待子线程结束 *********//
+		int value;
+		thread_join_int(thread,&value);
+		M_TRACE("---------  End test_thread_clean()  ---------\n\n");
+	}
 	```
 
 	![thread_clean_up](../imgs/thread/thread_clean_up.JPG)
@@ -251,7 +251,7 @@ void test_thread_clean()
 
 18. `pthread_detach`函数：将指定线程设置为分离状态
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_detach(pthread_t tid);
 	```
@@ -263,25 +263,25 @@ void test_thread_clean()
 
 19. 示例：在`main`函数中调用`test_thread_detach`函数：
 
-	```
-void test_thread_detach()
-{
-    M_TRACE("---------  Begin test_thread_detach()  ---------\n");
-    //******** 创建子线程 *********//
-    pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
-    for(int i=0;i<3;i++)
-        My_pthread_create(threads+i,NULL,thread_func,i);
-    pthread_mutex_unlock(&mutex);
+	```C++
+	void test_thread_detach()
+	{
+		M_TRACE("---------  Begin test_thread_detach()  ---------\n");
+		//******** 创建子线程 *********//
+		pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
+		for(int i=0;i<3;i++)
+			My_pthread_create(threads+i,NULL,thread_func,i);
+		pthread_mutex_unlock(&mutex);
 
-    My_pthread_detach(threads[0]);// 主线程会设置第一个子线程为分离状态
-    //******** 等待子线程结束 *********//
-    int values[3];
-    for(int i=0;i<3;i++)
-    {
-        thread_join_int(threads[i],values+i);
-    }
-    M_TRACE("---------  End test_thread_detach()  ---------\n\n");
-}
+		My_pthread_detach(threads[0]);// 主线程会设置第一个子线程为分离状态
+		//******** 等待子线程结束 *********//
+		int values[3];
+		for(int i=0;i<3;i++)
+		{
+			thread_join_int(threads[i],values+i);
+		}
+		M_TRACE("---------  End test_thread_detach()  ---------\n\n");
+	}
 	```
 
 	![thread_detach](../imgs/thread/thread_detach.JPG)
@@ -291,24 +291,24 @@ void test_thread_detach()
 
 20. 示例：在`main`函数中调用`test_thread_join`函数。任何线程都能`pthread_join`子线程；但是子线程不能等待主线程
 
-	```
-void test_thread_join()
-{
-    M_TRACE("---------  Begin test_thread_join()  ---------\n");
-    //******** 创建子线程 *********//
-    pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
-    threads[0]=pthread_self();
-    for(int i=0;i<3;i++)
-        My_pthread_create(threads+i+1,NULL,thread_func,i);
-    pthread_mutex_unlock(&mutex);
-    //******** 等待子线程结束 *********//
-    int values[3];
-    for(int i=0;i<2;i++)
-    {
-        thread_join_int(threads[2+i],values+i);
-    }
-    M_TRACE("---------  End test_thread_join()  ---------\n\n");
-}
+	```C++
+	void test_thread_join()
+	{
+		M_TRACE("---------  Begin test_thread_join()  ---------\n");
+		//******** 创建子线程 *********//
+		pthread_mutex_lock(&mutex); //必须同步。否则多个线程的输出交叉进行
+		threads[0]=pthread_self();
+		for(int i=0;i<3;i++)
+			My_pthread_create(threads+i+1,NULL,thread_func,i);
+		pthread_mutex_unlock(&mutex);
+		//******** 等待子线程结束 *********//
+		int values[3];
+		for(int i=0;i<2;i++)
+		{
+			thread_join_int(threads[2+i],values+i);
+		}
+		M_TRACE("---------  End test_thread_join()  ---------\n\n");
+	}
 	```
 
 	![pthread_join](../imgs/thread/pthread_join.JPG)	
@@ -354,7 +354,7 @@ void test_thread_join()
 
 	涉及的函数为：
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_mutex_init(pthread_mutex_t *restrict mutex,
 		const pthread_mutexattr_t *restrict attr);
@@ -369,7 +369,7 @@ void test_thread_join()
 
 4. `pthread_mutex_lock/pthread_mutex_trylock/pthread_mutex_unlock`函数：对互斥量加锁/解锁操作
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_mutex_lock(pthread_mutex_t *mutex);
 	int pthread_mutex_trylock(pthread_mutex_t *mutex);
@@ -398,7 +398,7 @@ void test_thread_join()
 
 6. `pthread_mutex_timedlock`函数：对互斥量加锁或等待指定时间
 
-	```
+	```C++
 	#include<pthread.h>
 	#include<time.h>
 	int pthread_mutex_timedlock(pthread_mutex_t *restrict mutex,
@@ -419,31 +419,33 @@ void test_thread_join()
 
 7. 实例：在`main`函数中调用`test_mutex`函数：
 
-	```
-void test_mutex()
-{
-    M_TRACE("---------  Begin test_mutex()  ---------\n");
-    //********** 初始化 *************//
-    shared_int=99;
-    My_pthread_mutex_init(&mutex,NULL);
-    //******** 创建子线程 *********//
-    const int N=5;
-    pthread_t threads[N];
-    for(int i=0;i<N;i++)
-        My_pthread_create(threads+i,NULL,thread_func,0);
-    //******** 等待子线程结束 *********//
-    int values[N];
-    for(int i=0;i<N;i++)
-        thread_join_int(threads[i],values+i);
+	```C++
+	void test_mutex()
+	{
+		M_TRACE("---------  Begin test_mutex()  ---------\n");
+		//********** 初始化 *************//
+		shared_int=99;
+		My_pthread_mutex_init(&mutex,NULL);
+		//******** 创建子线程 *********//
+		const int N=5;
+		pthread_t threads[N];
+		for(int i=0;i<N;i++)
+			My_pthread_create(threads+i,NULL,thread_func,0);
+		//******** 等待子线程结束 *********//
+		int values[N];
+		for(int i=0;i<N;i++)
+			thread_join_int(threads[i],values+i);
 
-    My_pthread_mutex_destroy(&mutex);
-    M_TRACE("---------  End test_mutex()  ---------\n\n");
-}
+		My_pthread_mutex_destroy(&mutex);
+		M_TRACE("---------  End test_mutex()  ---------\n\n");
+	}
 	```
 	![mutex](../imgs/thread/mutex.JPG)
+	
 	从结果可见：如果不加锁，子线程之间相互竞争。最终主线程得到的是不正确的值。而且每次运行的情况可能还有不同
 	
 	如果使用`pthread_mutex_lock`，结果是正确的。
+	
 	![mutex2](../imgs/thread/mutex2.JPG)
 
 	注意：
@@ -480,7 +482,7 @@ void test_mutex()
 
 	涉及的函数为：
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_rwlock_init(pthread_rwlock_t *restrict rwlock,
 		const pthread_rwlockattr_t *restrict attr);
@@ -495,7 +497,7 @@ void test_mutex()
 
 5. `pthread_rwlock_rdlock/pthread_rwlock_wrlock/pthread_rwlock_unlock`函数：对读写锁加锁/解锁操作
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock);
 	int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock);
@@ -516,7 +518,7 @@ void test_mutex()
 
 6. `pthread_rwlock_tryrdlock/pthread_rwlock_trywrlock`函数：对读写锁加锁的条件版本
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock);
 	int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock);
@@ -531,7 +533,7 @@ void test_mutex()
 
 7. `pthread_rwlock_timedrdlock/pthread_rwlock_timedwrlock`函数：对读写锁加锁的超时版本
 
-	```
+	```C++
 	#include<pthread.h>
 	#include<time.h>
 	int pthread_rwlock_timedrdlock(pthread_rwlock_t *rwlock,
@@ -553,29 +555,30 @@ void test_mutex()
 
 8. 示例：在`main`函数中调用`test_rwlock`函数：
 
-	```
-void test_rwlock()
-{
-    M_TRACE("---------  Begin test_rwlock()  ---------\n");
-    //********** 初始化 *************//
-    shared_int=99;
-    My_pthread_rwlock_init(&rwlock,NULL);
-    //******** 创建子线程 *********//
-    const int N=5;
-    pthread_t threads[N];
-    int rw_int[]={1,1,3,1,1}; // 每个线程的锁的类型
-    for(int i=0;i<N;i++)
-        My_pthread_create(threads+i,NULL,thread_func,rw_int[i]);
-    //******** 等待子线程结束 *********//
-    int values[N];
-    for(int i=0;i<N;i++)
-        thread_join_int(threads[i],values+i);
+	```C++
+	void test_rwlock()
+	{
+		M_TRACE("---------  Begin test_rwlock()  ---------\n");
+		//********** 初始化 *************//
+		shared_int=99;
+		My_pthread_rwlock_init(&rwlock,NULL);
+		//******** 创建子线程 *********//
+		const int N=5;
+		pthread_t threads[N];
+		int rw_int[]={1,1,3,1,1}; // 每个线程的锁的类型
+		for(int i=0;i<N;i++)
+			My_pthread_create(threads+i,NULL,thread_func,rw_int[i]);
+		//******** 等待子线程结束 *********//
+		int values[N];
+		for(int i=0;i<N;i++)
+			thread_join_int(threads[i],values+i);
 
-    My_pthread_rwlock_destroy(&rwlock);
-    M_TRACE("---------  End test_rwlock()  ---------\n\n");
-}
+		My_pthread_rwlock_destroy(&rwlock);
+		M_TRACE("---------  End test_rwlock()  ---------\n\n");
+	}
 	```
 	![rwlock](../imgs/thread/rwlock.JPG)
+	
 	可以看到，在读锁序列中，所有的子线程都能对读锁进行加锁，因此会并行执行。因此如果此时写共享数据，发现结果会不正确。
 	
 	如果我们采用写锁序列，则子线程会串行依次进行。结果如下：
@@ -600,7 +603,7 @@ void test_rwlock()
 
 	涉及的函数为：
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_cond_init(pthread_cond_t *restrict cond,
 		const pthread_condattr_t *restrict attr);
@@ -615,7 +618,7 @@ void test_rwlock()
 
 4. `pthread_cond_wait/pthread_cond_timedwait`函数：等待条件成立
 
-	```
+	```C++
 	#include<pthread.h>
 	#include<time.h>
 	int pthread_cond_wait(pthread_cond_t *restrict cond,
@@ -646,7 +649,7 @@ void test_rwlock()
 
 5. `pthread_cond_signal/pthread_cond_broadcast`函数：通知所有线程，某个条件成立	
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_cond_signal(pthread_cond_t *cond);
 	int pthread_cond_broadcast(pthread_cond_t *cond);
@@ -673,43 +676,44 @@ void test_rwlock()
 
 7. 示例：在`main`函数中调用`test_condition`函数：
 
-	```
-void test_condition()
-{
-    M_TRACE("---------  Begin test_condition()  ---------\n");
-    //********** 初始化 *************//
-    shared_int=0;
-    My_pthread_mutex_init(&mutex,NULL);
-    My_pthread_cond_init(&cond,NULL);
-    //******** 创建子线程 *********//
-    const int N=2;
+	```C++
+	void test_condition()
+	{
+		M_TRACE("---------  Begin test_condition()  ---------\n");
+		//********** 初始化 *************//
+		shared_int=0;
+		My_pthread_mutex_init(&mutex,NULL);
+		My_pthread_cond_init(&cond,NULL);
+		//******** 创建子线程 *********//
+		const int N=2;
 
-    pthread_t thread_waits[N];
-    pthread_t thread_signals[N];
+		pthread_t thread_waits[N];
+		pthread_t thread_signals[N];
 
-    My_pthread_mutex_lock(&mutex); // 加锁
-    for(int i=0;i<N;i++)
-        My_pthread_create(thread_waits+i,NULL,thread_func_wait,0); //这些线程都在等待事件的发生
-    My_pthread_mutex_unlock(&mutex); // 解锁
+		My_pthread_mutex_lock(&mutex); // 加锁
+		for(int i=0;i<N;i++)
+			My_pthread_create(thread_waits+i,NULL,thread_func_wait,0); //这些线程都在等待事件的发生
+		My_pthread_mutex_unlock(&mutex); // 解锁
 
-    My_pthread_mutex_lock(&mutex); // 加锁
-    for(int i=0;i<N;i++)
-        My_pthread_create(thread_signals+i,NULL,thread_func_signal,0); //这些线程都在发送事件发生的信号
-    My_pthread_mutex_unlock(&mutex); // 解锁
-    //******** 等待子线程结束 *********//
-    int values[N];
-    for(int i=0;i<N;i++)
-        thread_join_int(thread_waits[i],values+i);
-    for(int i=0;i<N;i++)
-        thread_join_int(thread_signals[i],values+i);
+		My_pthread_mutex_lock(&mutex); // 加锁
+		for(int i=0;i<N;i++)
+			My_pthread_create(thread_signals+i,NULL,thread_func_signal,0); //这些线程都在发送事件发生的信号
+		My_pthread_mutex_unlock(&mutex); // 解锁
+		//******** 等待子线程结束 *********//
+		int values[N];
+		for(int i=0;i<N;i++)
+			thread_join_int(thread_waits[i],values+i);
+		for(int i=0;i<N;i++)
+			thread_join_int(thread_signals[i],values+i);
 
-    My_pthread_mutex_destroy(&mutex);
-    My_pthread_cond_destroy(&cond);
-    M_TRACE("---------  End test_condition()  ---------\n\n");
-}
+		My_pthread_mutex_destroy(&mutex);
+		My_pthread_cond_destroy(&cond);
+		M_TRACE("---------  End test_condition()  ---------\n\n");
+	}
 
 	```
 	![cond](../imgs/thread/cond.JPG)
+	
 	这里子线程要等待的条件是： `shared_int>=3`。
 	- 为了保证`pthread_cond_wait`醒来时，`shared_int`一定是大于等于 3，则必须用互斥量加锁（否则可能有其他线程在`pthread_cond_wait`返回的时候修改了`shared_int`）
 	- 至于 `pthread_cond_signal`调用时需不需要加锁，则不一定
@@ -734,7 +738,7 @@ void test_condition()
 
 	涉及的函数为：
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_spin_init(pthread_spinlock_t *restrict lock,
 		int pshared);
@@ -751,7 +755,7 @@ void test_condition()
 
 7. `pthread_spin_lock/pthread_spin_trylock/pthread_spin_unlock`函数：对自旋锁加锁/解锁操作
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_spin_lock(pthread_spinlock_t *lock);
 	int pthread_spin_trylock(pthread_spinlock_t *lock);
@@ -777,29 +781,29 @@ void test_condition()
 
 8. 示例：在`main`函数中调用`test_spinlock`函数：
 
-	```
-void test_spinlock()
-{
-    M_TRACE("---------  Begin test_spinlock()  ---------\n");
-    //********** 初始化 *************//
-    shared_int=0;
-    My_pthread_spin_init(&spin_lock,PTHREAD_PROCESS_PRIVATE);
-    //******** 创建子线程 *********//
-    const int N=3;
-    pthread_t threads[N];
+	```C++
+	void test_spinlock()
+	{
+		M_TRACE("---------  Begin test_spinlock()  ---------\n");
+		//********** 初始化 *************//
+		shared_int=0;
+		My_pthread_spin_init(&spin_lock,PTHREAD_PROCESS_PRIVATE);
+		//******** 创建子线程 *********//
+		const int N=3;
+		pthread_t threads[N];
 
-    My_pthread_spin_lock(&spin_lock); // 加锁
-    for(int i=0;i<N;i++)
-        My_pthread_create(threads+i,NULL,thread_func,0);
-    My_pthread_spin_unlock(&spin_lock); // 解锁
-    //******** 等待子线程结束 *********//
-    int values[N];
-    for(int i=0;i<N;i++)
-        thread_join_int(threads[i],values+i);
+		My_pthread_spin_lock(&spin_lock); // 加锁
+		for(int i=0;i<N;i++)
+			My_pthread_create(threads+i,NULL,thread_func,0);
+		My_pthread_spin_unlock(&spin_lock); // 解锁
+		//******** 等待子线程结束 *********//
+		int values[N];
+		for(int i=0;i<N;i++)
+			thread_join_int(threads[i],values+i);
 
-    My_pthread_spin_destroy(&spin_lock);
-    M_TRACE("---------  End test_spinlock()  ---------\n\n");
-}
+		My_pthread_spin_destroy(&spin_lock);
+		M_TRACE("---------  End test_spinlock()  ---------\n\n");
+	}
 
 	```
 	![spinlock](../imgs/thread/spinlock.JPG)
@@ -822,7 +826,7 @@ void test_spinlock()
 
 	涉及的函数为：
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_barrier_init(pthread_barrier_t *restrict barrier,
 		const pthread_barrierattr_t *restrict attr,
@@ -839,7 +843,7 @@ void test_spinlock()
 
 4. `pthread_barrier_wait`函数：线程到达屏障并等待其他线程也到达屏障
 
-	```
+	```C++
 	#include<pthread.h>
 	int pthread_barrier_wait(pthread_barrier_t * barrier);
 	```
@@ -858,25 +862,25 @@ void test_spinlock()
 
 5. 示例：在`main`函数中调用`test_barrier`函数：
 
-	```
-void test_barrier()
-{
-    M_TRACE("---------  Begin test_barrier()  ---------\n");
-    const int N=3;
-    //********** 初始化 *************//
-    My_pthread_barrier_init(&barrier,NULL,N);
-    //******** 创建子线程 *********//
-    pthread_t threads[N];
-    for(int i=0;i<N;i++)
-        My_pthread_create(threads+i,NULL,thread_func,0);
-    //******** 等待子线程结束 *********//
-    int values[N];
-    for(int i=0;i<N;i++)
-        thread_join_int(threads[i],values+i);
+	```C++
+	void test_barrier()
+	{
+		M_TRACE("---------  Begin test_barrier()  ---------\n");
+		const int N=3;
+		//********** 初始化 *************//
+		My_pthread_barrier_init(&barrier,NULL,N);
+		//******** 创建子线程 *********//
+		pthread_t threads[N];
+		for(int i=0;i<N;i++)
+			My_pthread_create(threads+i,NULL,thread_func,0);
+		//******** 等待子线程结束 *********//
+		int values[N];
+		for(int i=0;i<N;i++)
+			thread_join_int(threads[i],values+i);
 
-    My_pthread_barrier_destroy(&barrier);
-    M_TRACE("---------  End test_barrier()  ---------\n\n");
-}
+		My_pthread_barrier_destroy(&barrier);
+		M_TRACE("---------  End test_barrier()  ---------\n\n");
+	}
 	```
 
 	![barrier](../imgs/thread/barrier.JPG)
