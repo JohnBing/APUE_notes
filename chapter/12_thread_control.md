@@ -1166,7 +1166,8 @@
     }
 	```
 	运行结果如下。可以看到对`stdio`这个`FILE`对象的访问是交叉进行的。
-	![thread_FILE](../imgs/thread_control/thread_FILE.JPG)
+	
+    ![thread_FILE](../imgs/thread_control/thread_FILE.JPG)
 
 	我们修改`thread_func`函数为：
 
@@ -1184,7 +1185,8 @@
 	```
 
 	运行结果如下。可以看到对`stdio`这个`FILE`对象的访问是获得锁之后才能访问的。
-	![thread_FILE_lock](../imgs/thread_control/thread_FILE_lock.JPG)
+	
+    ![thread_FILE_lock](../imgs/thread_control/thread_FILE_lock.JPG)
 
 6. 对于线程可重入版本的标准`IO`函数，标准`IO`函数都首先对`FILE`加锁，然后操作完成后再对`FILE`解锁。那么在进行一次一个字符的`IO`时，就会出现严重的性能下降。此时提供了不加锁版本的基于字符的标准`IO`函数：
 
@@ -1611,7 +1613,8 @@
 	```
 	结果如下。可以看到：
 	- 信号的处理是进程中所有线程共享
-	![thread_signal_act](../imgs/thread_control/thread_signal_act.JPG)
+	
+    ![thread_signal_act](../imgs/thread_control/thread_signal_act.JPG)
 	
 	我们将`main`修改为：
 
@@ -1634,7 +1637,8 @@
 
 	结果如下。可以看到：
 	- 发送到进程的信号，现在被主线程接收到了
-	![thread_signal_process](../imgs/thread_control/thread_signal_process.JPG)
+	
+    ![thread_signal_process](../imgs/thread_control/thread_signal_process.JPG)
 
 9. 示例：
 
@@ -1776,7 +1780,8 @@
 	可以看到：
 	- `parent`和`child`处理程序是以它们注册时的顺序进行调用的
 	- `prepare`处理程序是以它们注册时的逆序进行调用的
-	![pthread_at_fork](../imgs/thread_control/pthread_at_fork.JPG)
+	
+    ![pthread_at_fork](../imgs/thread_control/pthread_at_fork.JPG)
 
 
 ## 8. 线程和IO

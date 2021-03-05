@@ -15,62 +15,62 @@
 
 4. 示例：
 
-	```
-#include <stdio.h>
-#include<fcntl.h>
-#include<errno.h>
-#include<string.h>
-void print_block_type(int fd)
-{
-    printf("\tget block state on fd(%d):",fd);
-    int result=fcntl(fd,F_GETFL);
-    if(result==-1)
+	```C++
+    #include <stdio.h>
+    #include<fcntl.h>
+    #include<errno.h>
+    #include<string.h>
+    void print_block_type(int fd)
     {
-        printf("\tfcntl:F_GETFL error,because %s\n",strerror(errno));
-    }
-    else
-    {
+        printf("\tget block state on fd(%d):",fd);
+        int result=fcntl(fd,F_GETFL);
+        if(result==-1)
+        {
+            printf("\tfcntl:F_GETFL error,because %s\n",strerror(errno));
+        }
+        else
+        {
 
-        if(result&O_NONBLOCK) printf("\tUnBlock\n");
-        else printf("\t Block\n");
+            if(result&O_NONBLOCK) printf("\tUnBlock\n");
+            else printf("\t Block\n");
+        }
     }
-}
-void test_unblock_open()
-{
-    int fd=open("/home/huaxz1986/test.txt",O_CREAT|O_NONBLOCK|O_WRONLY,S_IRUSR|S_IWUSR);
-    if(fd==-1)
-        printf("open /home/huaxz1986/test.txt error,because %s\n",strerror(errno));
-    else
-        print_block_type(fd);
-}
-void test_unblock_fcntl()
-{
-    int fd=open("/home/huaxz1986/test.txt",O_CREAT|O_WRONLY,S_IRUSR|S_IWUSR);
-    if(fd==-1)
-        printf("open /home/huaxz1986/test.txt error,because %s\n",strerror(errno));
-    else
+    void test_unblock_open()
     {
-        printf("Before fcntl:F_SETFL, block state is:\n");
-        print_block_type(fd);
+        int fd=open("/home/huaxz1986/test.txt",O_CREAT|O_NONBLOCK|O_WRONLY,S_IRUSR|S_IWUSR);
+        if(fd==-1)
+            printf("open /home/huaxz1986/test.txt error,because %s\n",strerror(errno));
+        else
+            print_block_type(fd);
     }
-    int ok=fcntl(fd,F_SETFL,O_NONBLOCK);
-    if(ok==-1)
+    void test_unblock_fcntl()
     {
-        printf("fcntl: F_SETFL error,because %s\n",strerror(errno));
-    }else
-    {
-        printf("After fcntl:F_SETFL, block state is:\n");
-        print_block_type(fd);
+        int fd=open("/home/huaxz1986/test.txt",O_CREAT|O_WRONLY,S_IRUSR|S_IWUSR);
+        if(fd==-1)
+            printf("open /home/huaxz1986/test.txt error,because %s\n",strerror(errno));
+        else
+        {
+            printf("Before fcntl:F_SETFL, block state is:\n");
+            print_block_type(fd);
+        }
+        int ok=fcntl(fd,F_SETFL,O_NONBLOCK);
+        if(ok==-1)
+        {
+            printf("fcntl: F_SETFL error,because %s\n",strerror(errno));
+        }else
+        {
+            printf("After fcntl:F_SETFL, block state is:\n");
+            print_block_type(fd);
+        }
     }
-}
-int main(void)
-{
-    printf("Test set unblock in open:\n");
-    test_unblock_open();
-    printf("Test set unblock in fcntl:\n");
-    test_unblock_fcntl();
-    return 0;
-}
+    int main(void)
+    {
+        printf("Test set unblock in open:\n");
+        test_unblock_open();
+        printf("Test set unblock in fcntl:\n");
+        test_unblock_fcntl();
+        return 0;
+    }
 
 	```
 
@@ -83,7 +83,7 @@ int main(void)
 
 2. `POSIX.1`中，通过`fcntl`设置文件记录锁：
 
-	```
+	```C++
 	#include<fcntl.h>
 	int fcntl(int fd,int cmd,.../*struct flock *flockptr */);
 	```
@@ -110,7 +110,7 @@ int main(void)
 
 3. `flock`结构为：
 
-	```
+	```C++
 	struct flock{
 		short l_type;// 指示锁的类型，如F_RDLCK(共享性读锁),F_WRLCK(独占性写锁),F_UNLCK(解锁)
 		short l_whence;// 指示锁的相对位置，如 SEEK_SET,SEEK_CUR,SEEK_END
@@ -128,102 +128,102 @@ int main(void)
 
 4. 示例 
 
-	```
-#include <stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<string.h>
-#include<errno.h>
-typedef struct flock Flock;
-void set_lock_unlock(int fd,int type,off_t start,off_t len)
-{
-    Flock flock_data;
-    const char * lock_type= type==F_RDLCK ? 
-		"F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
-    pid_t pid=getpid();
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    // test F_GETLK
-    int ok=fcntl(fd,F_GETLK,&flock_data);
-    if(ok==-1)
+	```C++
+    #include <stdio.h>
+    #include<unistd.h>
+    #include<fcntl.h>
+    #include<string.h>
+    #include<errno.h>
+    typedef struct flock Flock;
+    void set_lock_unlock(int fd,int type,off_t start,off_t len)
     {
-        printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
-
-    }else
-    {
-        if(flock_data.l_type==F_UNLCK)
+        Flock flock_data;
+        const char * lock_type= type==F_RDLCK ? 
+            "F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
+        pid_t pid=getpid();
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        // test F_GETLK
+        int ok=fcntl(fd,F_GETLK,&flock_data);
+        if(ok==-1)
         {
-            printf("%s can perform in pid %d\n",lock_type,pid);
+            printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
+
         }else
         {
-            printf("%s can't  perform in pid %d,because there is a lock hold by 
-			 process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            if(flock_data.l_type==F_UNLCK)
+            {
+                printf("%s can perform in pid %d\n",lock_type,pid);
+            }else
+            {
+                printf("%s can't  perform in pid %d,because there is a lock hold by 
+                process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            }
+        }
+        // test F_GETLK
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        ok=fcntl(fd,F_SETLK,&flock_data);
+        if(ok==-1)
+        {
+            printf("%s F_SETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
+
+        }else
+        {
+            printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
         }
     }
-    // test F_GETLK
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    ok=fcntl(fd,F_SETLK,&flock_data);
-    if(ok==-1)
+    void child(int fd)
     {
-        printf("%s F_SETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
-
-    }else
+        // lock at parent!
+        printf("\tParent pid is %d\n",getpid());
+        set_lock_unlock(fd,F_RDLCK,0,10);
+        set_lock_unlock(fd,F_WRLCK,10,10);
+        if(fork()==0)
+        {//child
+            sleep(1);
+            // lock at child!
+            printf("\tChild1 pid is %d\n",getpid());
+            set_lock_unlock(fd,F_RDLCK,0,10);
+            set_lock_unlock(fd,F_WRLCK,10,10);
+            sleep(10);
+            _exit(0);
+        }
+        if(fork()==0)
+        {//child
+            sleep(3);
+            printf("\tChild2 pid is %d\n",getpid());
+            set_lock_unlock(fd,F_RDLCK,0,10);
+            set_lock_unlock(fd,F_WRLCK,10,10);
+            sleep(10);
+            _exit(0);
+        }
+        if(fork()==0)
+        {//child
+            sleep(5);
+            printf("\tChild3 pid is %d\n",getpid());
+            set_lock_unlock(fd,F_RDLCK,0,10);
+            set_lock_unlock(fd,F_WRLCK,10,10);
+            sleep(10);
+            _exit(0);
+        }
+        sleep(2);
+        set_lock_unlock(fd,F_UNLCK,0,10);
+        set_lock_unlock(fd,F_UNLCK,0,10);
+        sleep(2);
+        set_lock_unlock(fd,F_UNLCK,10,10);
+        set_lock_unlock(fd,F_UNLCK,10,10);
+    }
+    int main(void)
     {
-        printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
+        int fd=open("/home/huaxz1986/test.txt",O_RDWR);
+        child(fd);
+        return 0;
     }
-}
-void child(int fd)
-{
-    // lock at parent!
-    printf("\tParent pid is %d\n",getpid());
-    set_lock_unlock(fd,F_RDLCK,0,10);
-    set_lock_unlock(fd,F_WRLCK,10,10);
-    if(fork()==0)
-    {//child
-        sleep(1);
-        // lock at child!
-        printf("\tChild1 pid is %d\n",getpid());
-        set_lock_unlock(fd,F_RDLCK,0,10);
-        set_lock_unlock(fd,F_WRLCK,10,10);
-        sleep(10);
-        _exit(0);
-    }
-    if(fork()==0)
-    {//child
-        sleep(3);
-        printf("\tChild2 pid is %d\n",getpid());
-        set_lock_unlock(fd,F_RDLCK,0,10);
-        set_lock_unlock(fd,F_WRLCK,10,10);
-        sleep(10);
-        _exit(0);
-    }
-    if(fork()==0)
-    {//child
-        sleep(5);
-        printf("\tChild3 pid is %d\n",getpid());
-        set_lock_unlock(fd,F_RDLCK,0,10);
-        set_lock_unlock(fd,F_WRLCK,10,10);
-        sleep(10);
-        _exit(0);
-    }
-    sleep(2);
-    set_lock_unlock(fd,F_UNLCK,0,10);
-    set_lock_unlock(fd,F_UNLCK,0,10);
-    sleep(2);
-    set_lock_unlock(fd,F_UNLCK,10,10);
-    set_lock_unlock(fd,F_UNLCK,10,10);
-}
-int main(void)
-{
-    int fd=open("/home/huaxz1986/test.txt",O_RDWR);
-    child(fd);
-    return 0;
-}
 	```
 
 	![fcntl_file_lock](../imgs/advanced_IO/fcntl_file_lock.jpg)
@@ -246,85 +246,85 @@ int main(void)
 
 	示例：
 
-	```
-#include <stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<string.h>
-#include<errno.h>
-typedef struct flock Flock;
-void set_lock_unlock(int fd,int type,off_t start,off_t len)
-{
-    Flock flock_data;
-    const char * lock_type= type==F_RDLCK ? 
-			"F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
-    pid_t pid=getpid();
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    // test F_GETLK
-    int ok=fcntl(fd,F_GETLK,&flock_data);
-    if(ok==-1)
+	```C++
+    #include <stdio.h>
+    #include<unistd.h>
+    #include<fcntl.h>
+    #include<string.h>
+    #include<errno.h>
+    typedef struct flock Flock;
+    void set_lock_unlock(int fd,int type,off_t start,off_t len)
     {
-        printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
-
-    }else
-    {
-        if(flock_data.l_type==F_UNLCK)
+        Flock flock_data;
+        const char * lock_type= type==F_RDLCK ? 
+                "F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
+        pid_t pid=getpid();
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        // test F_GETLK
+        int ok=fcntl(fd,F_GETLK,&flock_data);
+        if(ok==-1)
         {
-            printf("%s can perform in pid %d\n",lock_type,pid);
+            printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
+
         }else
         {
-            printf("%s can't  perform in pid %d,because there is a lock hold by  
-				process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            if(flock_data.l_type==F_UNLCK)
+            {
+                printf("%s can perform in pid %d\n",lock_type,pid);
+            }else
+            {
+                printf("%s can't  perform in pid %d,because there is a lock hold by  
+                    process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            }
+        }
+
+        // test F_GETLK
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        ok=fcntl(fd,F_SETLK,&flock_data);
+        if(ok==-1)
+        {
+            printf("%s F_SETLK error in pid %d,because %s\n",lock_type,
+                pid,strerror(errno));
+
+        }else
+        {
+            printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
         }
     }
-
-    // test F_GETLK
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    ok=fcntl(fd,F_SETLK,&flock_data);
-    if(ok==-1)
+    void child(int fd)
     {
-        printf("%s F_SETLK error in pid %d,because %s\n",lock_type,
-			pid,strerror(errno));
-
-    }else
-    {
-        printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
-    }
-}
-void child(int fd)
-{
-    // lock at parent!
-    printf("\tParent pid is %d\n",getpid());
-    set_lock_unlock(fd,F_RDLCK,0,5);
-    set_lock_unlock(fd,F_RDLCK,0,10);
-    set_lock_unlock(fd,F_WRLCK,10,5);
-    set_lock_unlock(fd,F_WRLCK,10,10);
-    if(fork()==0)
-    {//child
-        sleep(1);
-        // lock at child!
-        printf("\tChild1 pid is %d\n",getpid());
+        // lock at parent!
+        printf("\tParent pid is %d\n",getpid());
+        set_lock_unlock(fd,F_RDLCK,0,5);
         set_lock_unlock(fd,F_RDLCK,0,10);
-        set_lock_unlock(fd,F_WRLCK,0,10);
-        set_lock_unlock(fd,F_RDLCK,10,10);
+        set_lock_unlock(fd,F_WRLCK,10,5);
         set_lock_unlock(fd,F_WRLCK,10,10);
-        sleep(10);
-        _exit(0);
+        if(fork()==0)
+        {//child
+            sleep(1);
+            // lock at child!
+            printf("\tChild1 pid is %d\n",getpid());
+            set_lock_unlock(fd,F_RDLCK,0,10);
+            set_lock_unlock(fd,F_WRLCK,0,10);
+            set_lock_unlock(fd,F_RDLCK,10,10);
+            set_lock_unlock(fd,F_WRLCK,10,10);
+            sleep(10);
+            _exit(0);
+        }
+        sleep(2);
     }
-    sleep(2);
-}
-int main(void)
-{
-    int fd=open("/home/huaxz1986/test.txt",O_RDWR);
-    child(fd);
-    return 0;
-}
+    int main(void)
+    {
+        int fd=open("/home/huaxz1986/test.txt",O_RDWR);
+        child(fd);
+        return 0;
+    }
 	```
 	![fcntl_file_many_lock](../imgs/advanced_IO/fcntl_file_many_lock.jpg)
   
@@ -344,68 +344,68 @@ int main(void)
 
 	示例：
 
-	```
-#include <stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<string.h>
-#include<errno.h>
-typedef struct flock Flock;
-void set_lock_unlock(int fd,int type,off_t start,off_t len)
-{
-    Flock flock_data;
-    const char * lock_type= type==F_RDLCK ?
-			 "F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
-    pid_t pid=getpid();
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    // test F_GETLK
-    int ok=fcntl(fd,F_GETLK,&flock_data);
-    if(ok==-1)
+	```C++
+    #include <stdio.h>
+    #include<unistd.h>
+    #include<fcntl.h>
+    #include<string.h>
+    #include<errno.h>
+    typedef struct flock Flock;
+    void set_lock_unlock(int fd,int type,off_t start,off_t len)
     {
-        printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
-
-    }else
-    {
-        if(flock_data.l_type==F_UNLCK)
+        Flock flock_data;
+        const char * lock_type= type==F_RDLCK ?
+                "F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
+        pid_t pid=getpid();
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        // test F_GETLK
+        int ok=fcntl(fd,F_GETLK,&flock_data);
+        if(ok==-1)
         {
-            printf("%s can perform in pid %d\n",lock_type,pid);
+            printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
+
         }else
         {
-            printf("%s can't  perform in pid %d,because there is a lock hold by  
-			process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            if(flock_data.l_type==F_UNLCK)
+            {
+                printf("%s can perform in pid %d\n",lock_type,pid);
+            }else
+            {
+                printf("%s can't  perform in pid %d,because there is a lock hold by  
+                process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            }
+        }
+
+        // test F_GETLK
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        ok=fcntl(fd,F_SETLK,&flock_data);
+        if(ok==-1)
+        {
+            printf("%s F_SETLK error in pid %d,because %s\n",
+                lock_type,pid,strerror(errno));
+
+        }else
+        {
+            printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
         }
     }
-
-    // test F_GETLK
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    ok=fcntl(fd,F_SETLK,&flock_data);
-    if(ok==-1)
+    int main(void)
     {
-        printf("%s F_SETLK error in pid %d,because %s\n",
-			lock_type,pid,strerror(errno));
+        int fd1=open("/home/huaxz1986/test.txt",O_RDONLY);
+        int fd2=open("/home/huaxz1986/test2.txt",O_WRONLY);
 
-    }else
-    {
-        printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
+        set_lock_unlock(fd1,F_RDLCK,0,10);
+        set_lock_unlock(fd1,F_WRLCK,10,20);
+        set_lock_unlock(fd2,F_RDLCK,0,10);
+        set_lock_unlock(fd2,F_WRLCK,10,20);
+        return 0;
     }
-}
-int main(void)
-{
-    int fd1=open("/home/huaxz1986/test.txt",O_RDONLY);
-    int fd2=open("/home/huaxz1986/test2.txt",O_WRONLY);
-
-    set_lock_unlock(fd1,F_RDLCK,0,10);
-    set_lock_unlock(fd1,F_WRLCK,10,20);
-    set_lock_unlock(fd2,F_RDLCK,0,10);
-    set_lock_unlock(fd2,F_WRLCK,10,20);
-    return 0;
-}
 	```
 
 	![lock_open_type](../imgs/advanced_IO/lock_open_type.jpg)
@@ -423,13 +423,17 @@ int main(void)
 
 9. 在某个进程设置和释放文件上的一把锁时，系统会按照要求来组合和分裂相邻区域。
 	- 第 100～199 字节加读锁：
-		![read_lock](../imgs/advanced_IO/read_lock.JPG)
+	    
+        ![read_lock](../imgs/advanced_IO/read_lock.JPG)
 	- 解锁第150 字节，分裂成两个区域
-		![read_lock_2](../imgs/advanced_IO/read_lock_2.JPG)
+		
+        ![read_lock_2](../imgs/advanced_IO/read_lock_2.JPG)
 	- 第150字节加读锁，合并成一个区域
-		![read_lock](../imgs/advanced_IO/read_lock.JPG)
+		
+        ![read_lock](../imgs/advanced_IO/read_lock.JPG)
 	- 第150～249字节加写锁： 
-		![write_lock](../imgs/advanced_IO/write_lock.JPG)
+		
+        ![write_lock](../imgs/advanced_IO/write_lock.JPG)
 
 10. 由于调用进程绝对不会阻塞在自己持有的记录锁上，因此`F_GETLK`命令绝不会报告调用进程自己持有的记录锁
 
@@ -444,83 +448,83 @@ int main(void)
 
 	示例
 
-	```
-#include <stdio.h>
-#include<unistd.h>
-#include<fcntl.h>
-#include<string.h>
-#include<errno.h>
-typedef struct flock Flock;
-void set_lock_unlock(int fd,int type,off_t start,off_t len)
-{
-    Flock flock_data;
-    const char * lock_type= type==F_RDLCK ? 
-			"F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
-    pid_t pid=getpid();
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    // test F_GETLK
-    int ok=fcntl(fd,F_GETLK,&flock_data);
-    if(ok==-1)
+	```C++
+    #include <stdio.h>
+    #include<unistd.h>
+    #include<fcntl.h>
+    #include<string.h>
+    #include<errno.h>
+    typedef struct flock Flock;
+    void set_lock_unlock(int fd,int type,off_t start,off_t len)
     {
-        printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
-
-    }else
-    {
-        if(flock_data.l_type==F_UNLCK)
+        Flock flock_data;
+        const char * lock_type= type==F_RDLCK ? 
+                "F_RDLCK":(type==F_WRLCK? "F_WRLCK":"F_UNLCK");
+        pid_t pid=getpid();
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        // test F_GETLK
+        int ok=fcntl(fd,F_GETLK,&flock_data);
+        if(ok==-1)
         {
-            printf("%s can perform in pid %d\n",lock_type,pid);
+            printf("%s F_GETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
+
         }else
         {
-            printf("%s can't  perform in pid %d,because there is a lock hold by
-			  process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            if(flock_data.l_type==F_UNLCK)
+            {
+                printf("%s can perform in pid %d\n",lock_type,pid);
+            }else
+            {
+                printf("%s can't  perform in pid %d,because there is a lock hold by
+                process : pid=%d\n",lock_type,pid,flock_data.l_pid);
+            }
+        }
+        // test F_GETLK
+        flock_data.l_type=type;
+        flock_data.l_whence=SEEK_SET;
+        flock_data.l_start=start;
+        flock_data.l_len=len;
+        ok=fcntl(fd,F_SETLK,&flock_data);
+        if(ok==-1)
+        {
+            printf("%s F_SETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
+
+        }else
+        {
+            printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
         }
     }
-    // test F_GETLK
-    flock_data.l_type=type;
-    flock_data.l_whence=SEEK_SET;
-    flock_data.l_start=start;
-    flock_data.l_len=len;
-    ok=fcntl(fd,F_SETLK,&flock_data);
-    if(ok==-1)
+    void child(int fd1,int fd2,int fd3)
     {
-        printf("%s F_SETLK error in pid %d,because %s\n",lock_type,pid,strerror(errno));
-
-    }else
-    {
-        printf("%s F_SETLK is ok in pid %d\n",lock_type,pid);
-    }
-}
-void child(int fd1,int fd2,int fd3)
-{
-    // lock at parent!
-    printf("\tParent pid is %d\n",getpid());
-    set_lock_unlock(fd1,F_WRLCK,0,10);
-    set_lock_unlock(fd2,F_WRLCK,0,10);
-    set_lock_unlock(fd3,F_UNLCK,0,10);
-    if(fork()==0)
-    {//child
-        sleep(1);
-        // lock at child!
-        printf("\tChild1 pid is %d\n",getpid());
+        // lock at parent!
+        printf("\tParent pid is %d\n",getpid());
         set_lock_unlock(fd1,F_WRLCK,0,10);
         set_lock_unlock(fd2,F_WRLCK,0,10);
-        sleep(10);
-        set_lock_unlock(fd1,F_WRLCK,0,10);
-        _exit(0);
+        set_lock_unlock(fd3,F_UNLCK,0,10);
+        if(fork()==0)
+        {//child
+            sleep(1);
+            // lock at child!
+            printf("\tChild1 pid is %d\n",getpid());
+            set_lock_unlock(fd1,F_WRLCK,0,10);
+            set_lock_unlock(fd2,F_WRLCK,0,10);
+            sleep(10);
+            set_lock_unlock(fd1,F_WRLCK,0,10);
+            _exit(0);
+        }
+        sleep(2);
     }
-    sleep(2);
-}
-int main(void)
-{
-    int fd1=open("/home/huaxz1986/test.txt",O_RDWR);
-    int fd2=open("/home/huaxz1986/test2.txt",O_RDWR);
-    int fd3=open("/home/huaxz1986/test2.txt",O_RDWR);
-    child(fd1,fd2,fd3);
-    return 0;
-}
+    int main(void)
+    {
+        int fd1=open("/home/huaxz1986/test.txt",O_RDWR);
+        int fd2=open("/home/huaxz1986/test2.txt",O_RDWR);
+        int fd3=open("/home/huaxz1986/test2.txt",O_RDWR);
+        child(fd1,fd2,fd3);
+        return 0;
+    }
 	```
   
 	![lock_about_fd_process](../imgs/advanced_IO/lock_about_fd_process.JPG)
@@ -544,9 +548,9 @@ int main(void)
 	- 在`v`结点中，存有该文件的`lockf`链表的指针
 	- 某个进程`A`，如果`fd1,fd2,fd3`都指向同一个文件表项，则关闭`fd1,fd2,fd3`中的任何一个都将释放由进程`A`设置的锁。
 		- 关闭`fd1,fd2,fd3`中的任何一个时，内核会从该描述符所关联的`v`结点开始，逐个检查`lockf`链表中的各项，并释放由调用进程持有的各把锁。
-		> 内核并不清楚（也不关心）进程`A`是用这三个描述符中的哪个来设置这把锁的
+		- 内核并不清楚（也不关心）进程`A`是用这三个描述符中的哪个来设置这把锁的
 
-	![lock_descriptor](../imgs/advanced_IO/lock_descriptor.JPG)
+![lock_descriptor](../imgs/advanced_IO/lock_descriptor.JPG)
 
 13. 在文件尾端加锁/解锁时要注意：
 	- 当执行`fcntl(F_SETLK,flockptr)`，而`flockptr->l_type=F_WRLCK`，
@@ -611,7 +615,7 @@ int main(void)
 
 1. `select`函数：执行`IO`多路转换
 
-	```
+	```C++
 	#include<sys/select.h>
 	int select(int maxfdp1,fd_set *restrict readfds,fd_set *restrict writefds,
 			fd_set *restrict exceptfds,struct timeval *restrict tvptr);
@@ -670,7 +674,7 @@ int main(void)
 		- `FD_ZERO(fdset)`：将`fd_set`变量的所有位设置为 0
 		> 这里的`fdset`为`fd_set *`
 
-	```
+	```C++
 	#include<sys/select.h>
 	int FD_ISSET(int fd,fd_set *fdset);
 	void FD_CLR(int fd,fd_set *fdset);
@@ -691,7 +695,7 @@ int main(void)
 
 6. `POSIX.1`也定义了一个`pselect`函数，它是`select`的变体：
 
-	```
+	```C++
 	#include<sys/select.h>
 	int pselect(int maxfdp1,fd_set *restrict readfds,fd_set *restrict writefds,
 			fd_set *restrict exceptfds,const struct timespec *restrict tsptr,
@@ -706,43 +710,43 @@ int main(void)
 
 7. 示例：
 
-	```
-#include <stdio.h>
-#include<string.h>
-#include<errno.h>
-#include<unistd.h>
-#include<sys/select.h>
-void test_select(fd_set* set_p,int maxfdp1)
-{
-    int ok;
-    ok=select(maxfdp1,set_p,NULL,NULL,NULL);
-    if(ok==-1)
+	```C++
+    #include <stdio.h>
+    #include<string.h>
+    #include<errno.h>
+    #include<unistd.h>
+    #include<sys/select.h>
+    void test_select(fd_set* set_p,int maxfdp1)
     {
-            printf("select error,because %s\n",strerror(errno));
-    }else if(ok==0)
+        int ok;
+        ok=select(maxfdp1,set_p,NULL,NULL,NULL);
+        if(ok==-1)
         {
-            printf("Timeout\n");
-        }
-    else
-    {
-            for(int i=0;i<maxfdp1;i++)
+                printf("select error,because %s\n",strerror(errno));
+        }else if(ok==0)
             {
-                if(FD_ISSET(i,set_p))
-                {
-                    printf("fd %d is read ready\n",i);
-                }
+                printf("Timeout\n");
             }
+        else
+        {
+                for(int i=0;i<maxfdp1;i++)
+                {
+                    if(FD_ISSET(i,set_p))
+                    {
+                        printf("fd %d is read ready\n",i);
+                    }
+                }
+        }
     }
-}
-int main(void)
-{
-    fd_set set;
-    FD_ZERO(&set);
-    FD_SET(0,&set);
-    test_select(&set,1);
-    pause();
-    return 0;
-}
+    int main(void)
+    {
+        fd_set set;
+        FD_ZERO(&set);
+        FD_SET(0,&set);
+        test_select(&set,1);
+        pause();
+        return 0;
+    }
 	```
 
 	结果如下。其中`select`的读描述符列表仅包含描述符0（标准输入）。在未输入时，进程阻塞等待标准输入，如图一所示。在输入数据时，进程从`select`唤醒，如图二所示。
@@ -753,7 +757,7 @@ int main(void)
 ### poll
 1. 函数`poll`类似于`select`，但是接口不同。其原型为：
 
-	```
+	```C++
 	#include<poll.h>
 	int poll(struct pollfd fdarray[],nfds_t nfds,int timeout);
 	```
@@ -776,7 +780,7 @@ int main(void)
 
 	与`select`不同，`poll`不是为每个条件（可读性、可写性、异常条件）构造一个描述符集，而是构造一个`pollfd`结构的数组，每个数组元素指定一个描述符编号以及我们对该描述符感兴趣的条件：
 
-	```
+	```C++
 	struct pollfd{
 		int fd;         // 待检查的描述符，如果小于零则忽略之
 		short events;    // 对`fd`上感兴趣的条件
@@ -801,80 +805,80 @@ int main(void)
 
 	示例：
 
-	```
-#include <stdio.h>
-#include<string.h>
-#include<errno.h>
-#include<unistd.h>
-#include<poll.h>
-typedef struct pollfd Pollfd;
-void print_pollfd_revent(Pollfd * pfd)
-{
-    if(pfd==NULL) return;
-    switch (pfd->revents) {
-    case POLLIN:
-        printf("\tfd %d is POLLIN\n",pfd->fd);
-        break;
-    case POLLRDNORM:
-        printf("\tfd %d is POLLRDNORM\n",pfd->fd);
-        break;
-    case POLLRDBAND:
-        printf("\tfd %d is POLLRDBAND\n",pfd->fd);
-        break;
-    case POLLPRI:
-        printf("\tfd %d is POLLPRI\n",pfd->fd);
-        break;
-    case POLLOUT:
-        printf("\tfd %d is POLLOUT\n",pfd->fd);
-        break;
-    case POLLWRNORM:
-        printf("\tfd %d is POLLWRNORM\n",pfd->fd);
-        break;
-    case POLLWRBAND:
-        printf("\tfd %d is POLLWRBAND\n",pfd->fd);
-        break;
-    case POLLERR:
-        printf("\tfd %d is POLLERR\n",pfd->fd);
-        break;
-    case POLLHUP:
-        printf("\tfd %d is POLLHUP\n",pfd->fd);
-        break;
-    case POLLNVAL:
-        printf("\tfd %d is POLLNVAL\n",pfd->fd);
-        break;
-    default:
-         printf("Never come here\n");
-        break;
-    }
-}
-void test_poll(Pollfd fdarray[],int num)
-{
-    int ok;
-    ok=poll(fdarray,num,-1);
-    if(ok==-1)
+	```C++
+    #include <stdio.h>
+    #include<string.h>
+    #include<errno.h>
+    #include<unistd.h>
+    #include<poll.h>
+    typedef struct pollfd Pollfd;
+    void print_pollfd_revent(Pollfd * pfd)
     {
-            printf("\tpoll error,because %s\n",strerror(errno));
-    }else if(ok==0)
-        {
-            printf("\tTimeout\n");
+        if(pfd==NULL) return;
+        switch (pfd->revents) {
+        case POLLIN:
+            printf("\tfd %d is POLLIN\n",pfd->fd);
+            break;
+        case POLLRDNORM:
+            printf("\tfd %d is POLLRDNORM\n",pfd->fd);
+            break;
+        case POLLRDBAND:
+            printf("\tfd %d is POLLRDBAND\n",pfd->fd);
+            break;
+        case POLLPRI:
+            printf("\tfd %d is POLLPRI\n",pfd->fd);
+            break;
+        case POLLOUT:
+            printf("\tfd %d is POLLOUT\n",pfd->fd);
+            break;
+        case POLLWRNORM:
+            printf("\tfd %d is POLLWRNORM\n",pfd->fd);
+            break;
+        case POLLWRBAND:
+            printf("\tfd %d is POLLWRBAND\n",pfd->fd);
+            break;
+        case POLLERR:
+            printf("\tfd %d is POLLERR\n",pfd->fd);
+            break;
+        case POLLHUP:
+            printf("\tfd %d is POLLHUP\n",pfd->fd);
+            break;
+        case POLLNVAL:
+            printf("\tfd %d is POLLNVAL\n",pfd->fd);
+            break;
+        default:
+            printf("Never come here\n");
+            break;
         }
-    else
-    {
-            for(int i=0;i<num;i++)
-            {
-                print_pollfd_revent(fdarray+i);
-            }
     }
-}
-int main(void)
-{
-    Pollfd array[1];
-    array[0].fd=0;
-    array[0].events=POLLIN|POLLPRI;
-    test_poll(array,1);
-    pause();
-    return 0;
-}
+    void test_poll(Pollfd fdarray[],int num)
+    {
+        int ok;
+        ok=poll(fdarray,num,-1);
+        if(ok==-1)
+        {
+                printf("\tpoll error,because %s\n",strerror(errno));
+        }else if(ok==0)
+            {
+                printf("\tTimeout\n");
+            }
+        else
+        {
+                for(int i=0;i<num;i++)
+                {
+                    print_pollfd_revent(fdarray+i);
+                }
+        }
+    }
+    int main(void)
+    {
+        Pollfd array[1];
+        array[0].fd=0;
+        array[0].events=POLLIN|POLLPRI;
+        test_poll(array,1);
+        pause();
+        return 0;
+    }
 	```
 	结果如下。在未输入时，进程阻塞等待标准输入，如图一所示。在输入数据时，进程从`poll`唤醒，如图二所示。
 
@@ -894,117 +898,117 @@ int main(void)
 
 	示例：
 
-	```
-#include <stdio.h>
-#include<string.h>
-#include<errno.h>
-#include<unistd.h>
-#include<poll.h>
-#include<signal.h>
-typedef struct pollfd Pollfd;
-void sig_print(int signo,siginfo_t *info, void *context)
-{
-    printf("Begin signal Hanlder:\n");
-    psiginfo(info,"The siginfo is:\t");
-    printf("End signal Hanlder:\n");
-}
-void add_sigaction(int signo)
-{
-    sigset_t set;
-    sigemptyset(&set);
+	```C++
+    #include <stdio.h>
+    #include<string.h>
+    #include<errno.h>
+    #include<unistd.h>
+    #include<poll.h>
+    #include<signal.h>
+    typedef struct pollfd Pollfd;
+    void sig_print(int signo,siginfo_t *info, void *context)
+    {
+        printf("Begin signal Hanlder:\n");
+        psiginfo(info,"The siginfo is:\t");
+        printf("End signal Hanlder:\n");
+    }
+    void add_sigaction(int signo)
+    {
+        sigset_t set;
+        sigemptyset(&set);
 
-    struct sigaction action;
-    action.sa_sigaction=sig_print;
-    action.sa_flags=SA_SIGINFO|SA_RESTART;
-    action.sa_mask=set;
-    if(sigaction(signo,&action,NULL)==-1)
-    {
-        printf("set sigaction for signal %s failed!
-			,because %s\n",strsignal(signo),strerror(errno));
-    }else
-    {
-        printf("set sigaction for signal %s successed\n",strsignal(signo));
-    }
-}
-void print_pollfd_revent(Pollfd * pfd)
-{
-    if(pfd==NULL) return;
-    switch (pfd->revents) {
-    case POLLIN:
-        printf("\tfd %d is POLLIN\n",pfd->fd);
-        break;
-    case POLLRDNORM:
-        printf("\tfd %d is POLLRDNORM\n",pfd->fd);
-        break;
-    case POLLRDBAND:
-        printf("\tfd %d is POLLRDBAND\n",pfd->fd);
-        break;
-    case POLLPRI:
-        printf("\tfd %d is POLLPRI\n",pfd->fd);
-        break;
-    case POLLOUT:
-        printf("\tfd %d is POLLOUT\n",pfd->fd);
-        break;
-    case POLLWRNORM:
-        printf("\tfd %d is POLLWRNORM\n",pfd->fd);
-        break;
-    case POLLWRBAND:
-        printf("\tfd %d is POLLWRBAND\n",pfd->fd);
-        break;
-    case POLLERR:
-        printf("\tfd %d is POLLERR\n",pfd->fd);
-        break;
-    case POLLHUP:
-        printf("\tfd %d is POLLHUP\n",pfd->fd);
-        break;
-    case POLLNVAL:
-        printf("\tfd %d is POLLNVAL\n",pfd->fd);
-        break;
-    default:
-         printf("Never come here\n");
-        break;
-    }
-}
-void test_poll(Pollfd fdarray[],int num)
-{
-    int ok;
-    ok=poll(fdarray,num,-1);
-    if(ok==-1)
-    {
-            printf("\tpoll error,because %s\n",strerror(errno));
-    }else if(ok==0)
+        struct sigaction action;
+        action.sa_sigaction=sig_print;
+        action.sa_flags=SA_SIGINFO|SA_RESTART;
+        action.sa_mask=set;
+        if(sigaction(signo,&action,NULL)==-1)
         {
-            printf("\tTimeout\n");
+            printf("set sigaction for signal %s failed!
+                ,because %s\n",strsignal(signo),strerror(errno));
+        }else
+        {
+            printf("set sigaction for signal %s successed\n",strsignal(signo));
         }
-    else
+    }
+    void print_pollfd_revent(Pollfd * pfd)
     {
-            for(int i=0;i<num;i++)
+        if(pfd==NULL) return;
+        switch (pfd->revents) {
+        case POLLIN:
+            printf("\tfd %d is POLLIN\n",pfd->fd);
+            break;
+        case POLLRDNORM:
+            printf("\tfd %d is POLLRDNORM\n",pfd->fd);
+            break;
+        case POLLRDBAND:
+            printf("\tfd %d is POLLRDBAND\n",pfd->fd);
+            break;
+        case POLLPRI:
+            printf("\tfd %d is POLLPRI\n",pfd->fd);
+            break;
+        case POLLOUT:
+            printf("\tfd %d is POLLOUT\n",pfd->fd);
+            break;
+        case POLLWRNORM:
+            printf("\tfd %d is POLLWRNORM\n",pfd->fd);
+            break;
+        case POLLWRBAND:
+            printf("\tfd %d is POLLWRBAND\n",pfd->fd);
+            break;
+        case POLLERR:
+            printf("\tfd %d is POLLERR\n",pfd->fd);
+            break;
+        case POLLHUP:
+            printf("\tfd %d is POLLHUP\n",pfd->fd);
+            break;
+        case POLLNVAL:
+            printf("\tfd %d is POLLNVAL\n",pfd->fd);
+            break;
+        default:
+            printf("Never come here\n");
+            break;
+        }
+    }
+    void test_poll(Pollfd fdarray[],int num)
+    {
+        int ok;
+        ok=poll(fdarray,num,-1);
+        if(ok==-1)
+        {
+                printf("\tpoll error,because %s\n",strerror(errno));
+        }else if(ok==0)
             {
-                print_pollfd_revent(fdarray+i);
+                printf("\tTimeout\n");
             }
+        else
+        {
+                for(int i=0;i<num;i++)
+                {
+                    print_pollfd_revent(fdarray+i);
+                }
+        }
     }
-}
-void child()
-{
-    if(fork()==0)
-    {//chid
-        sleep(1);
-        kill(getppid(),SIGINT);
-          _exit(0);
-    }else
+    void child()
     {
-        Pollfd array[1];
-        array[0].fd=0;
-        array[0].events=POLLIN|POLLPRI;
-        test_poll(array,1);
+        if(fork()==0)
+        {//chid
+            sleep(1);
+            kill(getppid(),SIGINT);
+            _exit(0);
+        }else
+        {
+            Pollfd array[1];
+            array[0].fd=0;
+            array[0].events=POLLIN|POLLPRI;
+            test_poll(array,1);
+        }
     }
-}
-int main(void)
-{
-    add_sigaction(SIGINT);
-    child();
-    return 0;
-}
+    int main(void)
+    {
+        add_sigaction(SIGINT);
+        child();
+        return 0;
+    }
 	```
   
 	![poll_restart](../imgs/advanced_IO/poll_restart.JPG)
@@ -1033,7 +1037,7 @@ int main(void)
 
 	`aiocb`结构定义了`AIO`控制块，其结构至少包括下面这些字段：
 
-	```
+	```C++
 	struct aiocb{
 		int aio_fildes;            // 文件描述符
 		off_t aio_offset;           // 文件偏移量
@@ -1054,7 +1058,7 @@ int main(void)
 	- `aio_lio_opcode`：参见`lio_listio`函数的说明。它指定了该`AIO`控制块是用于多操作、写操作、还是空操作
 	- `aio_sigevent`：指定`IO`事件完成后，如何通知应用程序：
 
-		```
+		```C++
 		struct sigevent{
 			int sigev_notify;         // 通知类型
 			int sigev_signo;          // 信号编号
@@ -1068,19 +1072,19 @@ int main(void)
 			- `SIGEV_THREAD`：当异步`IO`请求完成后，由`sigev_notify_function`字段指定的函数被调用成为一个子线程。`sigev_value`字段被传入作为其参数。如果`sigev_notify_attributes`为`NULL`，则该线程为分离状态；如果`sigev_notify_attributes`不是`NULL`，则该线程的属性由`sigev_notify_attributes`指定
 			> `sigev_value`是个`union`，其结构一般为：
 			>
-			>```
-			union sigval
-  			{
-				int sival_int;
- 				void *sival_ptr;
-  			}
-			```	
+        ```C++
+        union sigval
+        {
+            int sival_int;
+            void *sival_ptr;
+        }
+        ```	
 
 2. 在进行异步`IO`之前，需要先初始化`AIO`控制块，然后再进行异步读写操作
 
 3. `aio_read/aio_write`函数：异步读/写操作
 
-	```
+	```C++
 	#include<aio.h>
 	int aio_read(struct aiocb *aiocb);
 	int aio_write(struct aiocb *aiocb);
@@ -1097,101 +1101,101 @@ int main(void)
 
 4. 示例 
 
-	```
-#include <stdio.h>
-#include<fcntl.h>
-#include<unistd.h>
-#include<aio.h>
-#include<signal.h>
-#include<string.h>
-#include<errno.h>
-typedef struct aiocb Aiocb;
-typedef struct sigevent Sigevent;
-Aiocb read_aiocb;
-void sig_print(int signo,siginfo_t *info, void *context)
-{
-    printf("Begin signal Hanlder:\n");
-    psiginfo(info,"The siginfo is:\t");
-    printf("End signal Hanlder:\n");
-}
-void add_sigaction(int signo)
-{
-    sigset_t set;
-    sigemptyset(&set);
-
-    struct sigaction action;
-    action.sa_sigaction=sig_print;
-    action.sa_flags=SA_SIGINFO|SA_RESTART;
-    action.sa_mask=set;
-    if(sigaction(signo,&action,NULL)==-1)
+	```C++
+    #include <stdio.h>
+    #include<fcntl.h>
+    #include<unistd.h>
+    #include<aio.h>
+    #include<signal.h>
+    #include<string.h>
+    #include<errno.h>
+    typedef struct aiocb Aiocb;
+    typedef struct sigevent Sigevent;
+    Aiocb read_aiocb;
+    void sig_print(int signo,siginfo_t *info, void *context)
     {
-        printf("set sigaction for signal %s failed!,because %s\n",
-			strsignal(signo),strerror(errno));
-    }else
-    {
-        printf("set sigaction for signal %s successed\n",strsignal(signo));
+        printf("Begin signal Hanlder:\n");
+        psiginfo(info,"The siginfo is:\t");
+        printf("End signal Hanlder:\n");
     }
-}
-void thread_func(void *val)
-{
-    printf("Begin Thread:\n");
-    printf("val is %d\n",(int)val);
-    printf("End Thread:\n");
-}
-void test_read_aio_signal()
-{
-
-    Sigevent read_event;
-    int read_buffer[10];
-    int ok;
-    int fd=open("/home/huaxz1986/test.txt",O_RDONLY);
-    //****** init sigevent *****//
-    read_event.sigev_notify=SIGEV_SIGNAL;
-    read_event.sigev_signo=SIGINT;
-    read_event.sigev_value.sival_int=99;
-    //****** init aiocb   ******//
-    read_aiocb.aio_fildes=fd;
-    read_aiocb.aio_offset=0;
-    read_aiocb.aio_buf=read_buffer;
-    read_aiocb.aio_nbytes=10;
-    read_aiocb.aio_sigevent=read_event;
-    ok=aio_read(&read_aiocb);
-    if(ok==-1) printf("aio_read error,because %s\n",strerror(errno));
-}
-void test_read_aio_thread()
-{
-    Sigevent read_event;
-    int read_buffer[10];
-    int ok;
-    int fd=open("/home/huaxz1986/test.txt",O_RDONLY);
-    //****** init sigevent *****//
-    read_event.sigev_notify=SIGEV_THREAD;
-    read_event.sigev_value.sival_int=100;
-    read_event._sigev_un._sigev_thread._function=thread_func;
-    //****** init aiocb   ******//
-    read_aiocb.aio_fildes=fd;
-    read_aiocb.aio_offset=0;
-    read_aiocb.aio_buf=read_buffer;
-    read_aiocb.aio_nbytes=10;
-    read_aiocb.aio_sigevent=read_event;
-    ok=aio_read(&read_aiocb);
-    if(ok==-1) printf("aio_read error,because %s\n",strerror(errno));
-}
-int main(void)
-{
-    add_sigaction(SIGINT);
-    test_read_aio_signal();
-    sleep(5);
-    int ok=aio_error(&read_aiocb);
-    if(0==ok)
+    void add_sigaction(int signo)
     {
-        int size=aio_return(&read_aiocb);
-        printf("aio read is success done, read %d bytes\n",size);
-    }else if(-1==ok) printf("aio_error because %s\n",strerror(errno));
-    else if(EINPROGRESS ==ok) printf("aio is in progress\n");
-    else printf("aio_error test aio read id error ,because %s\n",strerror(ok));
-    return 0;
-}
+        sigset_t set;
+        sigemptyset(&set);
+
+        struct sigaction action;
+        action.sa_sigaction=sig_print;
+        action.sa_flags=SA_SIGINFO|SA_RESTART;
+        action.sa_mask=set;
+        if(sigaction(signo,&action,NULL)==-1)
+        {
+            printf("set sigaction for signal %s failed!,because %s\n",
+                strsignal(signo),strerror(errno));
+        }else
+        {
+            printf("set sigaction for signal %s successed\n",strsignal(signo));
+        }
+    }
+    void thread_func(void *val)
+    {
+        printf("Begin Thread:\n");
+        printf("val is %d\n",(int)val);
+        printf("End Thread:\n");
+    }
+    void test_read_aio_signal()
+    {
+
+        Sigevent read_event;
+        int read_buffer[10];
+        int ok;
+        int fd=open("/home/huaxz1986/test.txt",O_RDONLY);
+        //****** init sigevent *****//
+        read_event.sigev_notify=SIGEV_SIGNAL;
+        read_event.sigev_signo=SIGINT;
+        read_event.sigev_value.sival_int=99;
+        //****** init aiocb   ******//
+        read_aiocb.aio_fildes=fd;
+        read_aiocb.aio_offset=0;
+        read_aiocb.aio_buf=read_buffer;
+        read_aiocb.aio_nbytes=10;
+        read_aiocb.aio_sigevent=read_event;
+        ok=aio_read(&read_aiocb);
+        if(ok==-1) printf("aio_read error,because %s\n",strerror(errno));
+    }
+    void test_read_aio_thread()
+    {
+        Sigevent read_event;
+        int read_buffer[10];
+        int ok;
+        int fd=open("/home/huaxz1986/test.txt",O_RDONLY);
+        //****** init sigevent *****//
+        read_event.sigev_notify=SIGEV_THREAD;
+        read_event.sigev_value.sival_int=100;
+        read_event._sigev_un._sigev_thread._function=thread_func;
+        //****** init aiocb   ******//
+        read_aiocb.aio_fildes=fd;
+        read_aiocb.aio_offset=0;
+        read_aiocb.aio_buf=read_buffer;
+        read_aiocb.aio_nbytes=10;
+        read_aiocb.aio_sigevent=read_event;
+        ok=aio_read(&read_aiocb);
+        if(ok==-1) printf("aio_read error,because %s\n",strerror(errno));
+    }
+    int main(void)
+    {
+        add_sigaction(SIGINT);
+        test_read_aio_signal();
+        sleep(5);
+        int ok=aio_error(&read_aiocb);
+        if(0==ok)
+        {
+            int size=aio_return(&read_aiocb);
+            printf("aio read is success done, read %d bytes\n",size);
+        }else if(-1==ok) printf("aio_error because %s\n",strerror(errno));
+        else if(EINPROGRESS ==ok) printf("aio is in progress\n");
+        else printf("aio_error test aio read id error ,because %s\n",strerror(ok));
+        return 0;
+    }
 	```
 	`librt` 是`glibc`对linux下的`real-time`系统调用的支持接口，封装的函数包括异步I/O。因此需要在`Qt`的`.pro`文件中添加`LIBS+= -lrt`。（如果用到了`sigev_notify=SIGEV_THREAD`，则还需要添加`LIBS+=-lpthread`）
 
@@ -1204,7 +1208,7 @@ int main(void)
 
 4. 如果想强制所有等待中的异步操作不等待而写入持久化的存储（如硬盘）中，可以设立一个`AIO`控制块并调用`aio_fsync`函数：
 
-	```
+	```C++
 	#include<aio.h>
 	int aio_fsync(int op,struct aiocb *aiocb);
 	```
@@ -1224,7 +1228,7 @@ int main(void)
 
 5. `aio_error`函数：获取一个异步读、写或者同步操作的完成状态
 
-	```
+	```C++
 	#include<aio.h>
 	int aio_error(const struct aiocb *aiocb);
 	```
@@ -1238,7 +1242,7 @@ int main(void)
 
 6. `aio_return`函数：如果异步操作成功，该函数获取异步操作的返回值
 
-	```
+	```C++
 	#include<aio.h>
 	ssize_t aio_return(const struct aiocb *aiocb);
 	```
@@ -1254,7 +1258,7 @@ int main(void)
 
 7. 如果想等待异步操作的完成，则可以使用`aio_suspend`函数：
 
-	```
+	```C++
 	#include<aio.h>
 	int aio_suspend(const struct aiocb *const list[],int nent,
 					const struct timespec *timeout);
@@ -1278,7 +1282,7 @@ int main(void)
 
 8. `aio_cancel`函数：取消异步`IO`：
 
-	```
+	```C++
 	#include<aio.h>
 	int aio_cacel(int fd,struct aiocb *aiocb);
 	```	
@@ -1299,7 +1303,7 @@ int main(void)
 
 9. `lio_listio`函数：提交一系列由一个`AIO`控制块列表描述的`IO`请求
 
-	```
+	```C++
 	#include<aio.h>
 	int lio_listio(int mode,struct aiocb *restrict const list[restrict_arr],
 		int nent,struct sigenvent* restrict sigev);
@@ -1337,7 +1341,7 @@ int main(void)
 
 1. `readv`和`writev`用于在一次函数调用中读、写多个非连续缓冲区。也称它们为散布读与聚集写
 
-	```
+	```C++
 	#include<sys/uio.h>
 	ssize_t readv(int fd,const struct iovec *iov,int iovcnt);
 	ssize_t writev(int fd,const struct iovec *iov,int iovcnt);
@@ -1354,7 +1358,7 @@ int main(void)
 	- 对于`readv`，该结构存放的是从文件中读入的内容
 	- 对于`writev`，该结构存放的是想文件中写入的内容	
 
-	```
+	```C++
 	struct iovec{
 		void *iov_base;  // 缓冲区开始地址
 		size_t iov_len;  // 缓冲区长度
@@ -1368,83 +1372,83 @@ int main(void)
 2. 示例：
 
 
-	```
-#include <stdio.h>
-#include<sys/uio.h>
-#include<string.h>
-#include<errno.h>
-#include<fcntl.h>
-#include<unistd.h>
-typedef struct iovec Iovec;
-// read buffers
-char read_buffer1[10];
-char read_buffer2[10];
-char read_buffer3[10];
-char read_buffer4[10];
-// write buffers
-char write_buffer1[20];
-char write_buffer2[20];
-// iovs
-Iovec read_iovs[4];
-Iovec write_iovs[2];
-void init_data()
-{
-	// init read_iovs
-    read_iovs[0].iov_base=read_buffer1;
-    read_iovs[0].iov_len=10;
-    read_iovs[1].iov_base=read_buffer2;
-    read_iovs[1].iov_len=10;
-    read_iovs[2].iov_base=read_buffer3;
-    read_iovs[2].iov_len=10;
-    read_iovs[3].iov_base=read_buffer4;
-    read_iovs[3].iov_len=10;
-	//init write_iovs
-    write_iovs[0].iov_base=write_buffer1;
-    write_iovs[0].iov_len=20;
-    write_iovs[1].iov_base=write_buffer2;
-    write_iovs[1].iov_len=20;
-	// init write_buffer
-    for(int i=0;i<20;i++)
+	```C++
+    #include <stdio.h>
+    #include<sys/uio.h>
+    #include<string.h>
+    #include<errno.h>
+    #include<fcntl.h>
+    #include<unistd.h>
+    typedef struct iovec Iovec;
+    // read buffers
+    char read_buffer1[10];
+    char read_buffer2[10];
+    char read_buffer3[10];
+    char read_buffer4[10];
+    // write buffers
+    char write_buffer1[20];
+    char write_buffer2[20];
+    // iovs
+    Iovec read_iovs[4];
+    Iovec write_iovs[2];
+    void init_data()
     {
-        write_buffer1[i]='a'+i;
-        write_buffer2[i]='A'+i;
+        // init read_iovs
+        read_iovs[0].iov_base=read_buffer1;
+        read_iovs[0].iov_len=10;
+        read_iovs[1].iov_base=read_buffer2;
+        read_iovs[1].iov_len=10;
+        read_iovs[2].iov_base=read_buffer3;
+        read_iovs[2].iov_len=10;
+        read_iovs[3].iov_base=read_buffer4;
+        read_iovs[3].iov_len=10;
+        //init write_iovs
+        write_iovs[0].iov_base=write_buffer1;
+        write_iovs[0].iov_len=20;
+        write_iovs[1].iov_base=write_buffer2;
+        write_iovs[1].iov_len=20;
+        // init write_buffer
+        for(int i=0;i<20;i++)
+        {
+            write_buffer1[i]='a'+i;
+            write_buffer2[i]='A'+i;
+        }
     }
-}
-void print_buffer(char* buffer,int len)
-{
-    printf("\t");
-    for(int i=0;i<len;i++)
-        printf("%c\t",buffer[i]);
-    printf("\n");
-}
-int main(void)
-{
-    init_data();
-    printf("Read Buffer is:\n");
-    print_buffer(read_buffer1,10);
-    print_buffer(read_buffer2,10);
-    print_buffer(read_buffer3,10);
-    print_buffer(read_buffer4,10);
-    printf("Write Buffer is:\n");
-    print_buffer(write_buffer1,20);
-    print_buffer(write_buffer2,20);
-	// open file
-    int fd=open("/home/huaxz1986/test.txt",O_RDWR|O_TRUNC);
-	//writev
-    int num=writev(fd,write_iovs,2);
-    if(num<0) printf("writev error,because %s \n",strerror(errno));
-	// readv
-    lseek(fd,0,SEEK_SET);
-    num=readv(fd,read_iovs,4);
-    if(num<0) printf("readv error,because %s \n",strerror(errno));
-	// print buffer
-    printf("After writev and readv, Read Buffer is:\n");
-    print_buffer(read_buffer1,10);
-    print_buffer(read_buffer2,10);
-    print_buffer(read_buffer3,10);
-    print_buffer(read_buffer4,10);
-    return 0;
-}
+    void print_buffer(char* buffer,int len)
+    {
+        printf("\t");
+        for(int i=0;i<len;i++)
+            printf("%c\t",buffer[i]);
+        printf("\n");
+    }
+    int main(void)
+    {
+        init_data();
+        printf("Read Buffer is:\n");
+        print_buffer(read_buffer1,10);
+        print_buffer(read_buffer2,10);
+        print_buffer(read_buffer3,10);
+        print_buffer(read_buffer4,10);
+        printf("Write Buffer is:\n");
+        print_buffer(write_buffer1,20);
+        print_buffer(write_buffer2,20);
+        // open file
+        int fd=open("/home/huaxz1986/test.txt",O_RDWR|O_TRUNC);
+        //writev
+        int num=writev(fd,write_iovs,2);
+        if(num<0) printf("writev error,because %s \n",strerror(errno));
+        // readv
+        lseek(fd,0,SEEK_SET);
+        num=readv(fd,read_iovs,4);
+        if(num<0) printf("readv error,because %s \n",strerror(errno));
+        // print buffer
+        printf("After writev and readv, Read Buffer is:\n");
+        print_buffer(read_buffer1,10);
+        print_buffer(read_buffer2,10);
+        print_buffer(read_buffer3,10);
+        print_buffer(read_buffer4,10);
+        return 0;
+    }
 	```
 
 	![readv_writev](../imgs/advanced_IO/readv_writev.JPG)
@@ -1464,7 +1468,7 @@ int main(void)
 
 2. `mmap`函数：将一个给定的文件映射到一个存储区域中：
 
-	```
+	```C++
 	#include<sys/mman.h>
 	void *mmap(void *addr,size_t len,int prot,int flag,int fd,off_t off);
 	```
@@ -1504,64 +1508,64 @@ int main(void)
 
 	示例：
 
-	```
-#include <stdio.h>
-#include<sys/mman.h>
-#include<string.h>
-#include<errno.h>
-#include<fcntl.h>
-#include<unistd.h>
-typedef void * VType;
-void test_mmap_shared(int fd,int len)
-{
-    VType addr=mmap(0,len,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-    if(addr==MAP_FAILED)
+	```C++
+    #include <stdio.h>
+    #include<sys/mman.h>
+    #include<string.h>
+    #include<errno.h>
+    #include<fcntl.h>
+    #include<unistd.h>
+    typedef void * VType;
+    void test_mmap_shared(int fd,int len)
     {
-        printf("mmap failed ,because %s\n",strerror(errno));
-    }else
-    {
-        close(fd);
-        memcpy(addr,"abcdefghijklmn",14);
+        VType addr=mmap(0,len,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+        if(addr==MAP_FAILED)
+        {
+            printf("mmap failed ,because %s\n",strerror(errno));
+        }else
+        {
+            close(fd);
+            memcpy(addr,"abcdefghijklmn",14);
+        }
+        munmap(addr,len);
     }
-    munmap(addr,len);
-}
-void test_mmap_private(int fd,int len)
-{
-    VType addr=mmap(0,len,PROT_READ|PROT_WRITE,MAP_PRIVATE,fd,0);
-    if(addr==MAP_FAILED)
+    void test_mmap_private(int fd,int len)
     {
-        printf("mmap failed ,because %s\n",strerror(errno));
-    }else
-    {
-        close(fd);
-        memcpy(addr,"ABCDEFGHIJKLMN",14);
+        VType addr=mmap(0,len,PROT_READ|PROT_WRITE,MAP_PRIVATE,fd,0);
+        if(addr==MAP_FAILED)
+        {
+            printf("mmap failed ,because %s\n",strerror(errno));
+        }else
+        {
+            close(fd);
+            memcpy(addr,"ABCDEFGHIJKLMN",14);
+        }
+        munmap(addr,len);
     }
-    munmap(addr,len);
-}
-int main(void)
-{
-    int fd1=open("/home/huaxz1986/test.txt",O_RDWR|O_TRUNC);
-    if(fd1==-1)
+    int main(void)
     {
-        printf("open /home/huaxz1986/test.txt failed,because %s\n",
-               strerror(errno));
-        return -1;
-    }
-    int fd2=open("/home/huaxz1986/test2.txt",O_RDWR|O_TRUNC);
-    if(fd2==-1)
-    {
+        int fd1=open("/home/huaxz1986/test.txt",O_RDWR|O_TRUNC);
+        if(fd1==-1)
+        {
+            printf("open /home/huaxz1986/test.txt failed,because %s\n",
+                strerror(errno));
+            return -1;
+        }
+        int fd2=open("/home/huaxz1986/test2.txt",O_RDWR|O_TRUNC);
+        if(fd2==-1)
+        {
 
-        printf("open /home/huaxz1986/test2.txt failed,because %s\n",
-               strerror(errno));
-        return -1;
-    }
+            printf("open /home/huaxz1986/test2.txt failed,because %s\n",
+                strerror(errno));
+            return -1;
+        }
 
-    ftruncate(fd1,100);
-    ftruncate(fd2,100);
-    test_mmap_shared(fd1,100);
-    test_mmap_private(fd2,100);
-    return 0;
-}
+        ftruncate(fd1,100);
+        ftruncate(fd2,100);
+        test_mmap_shared(fd1,100);
+        test_mmap_private(fd2,100);
+        return 0;
+    }
 	```
 	
 	![mmap](../imgs/advanced_IO/mmap.JPG)
@@ -1582,88 +1586,88 @@ int main(void)
 
 	示例：
 
-	```
-#include <stdio.h>
-#include<sys/mman.h>
-#include<string.h>
-#include<errno.h>
-#include<fcntl.h>
-#include<unistd.h>
-#include<signal.h>
-typedef void * VType;
-void sig_print(int signo,siginfo_t *info, void *context)
-{
-    printf("Begin signal Hanlder:\n");
-    psiginfo(info,"The siginfo is:\t");
-    printf("End signal Hanlder:\n");
-    _exit(0);
-}
-void add_sigaction(int signo)
-{
-    sigset_t set;
-    sigemptyset(&set);
+	```C++
+    #include <stdio.h>
+    #include<sys/mman.h>
+    #include<string.h>
+    #include<errno.h>
+    #include<fcntl.h>
+    #include<unistd.h>
+    #include<signal.h>
+    typedef void * VType;
+    void sig_print(int signo,siginfo_t *info, void *context)
+    {
+        printf("Begin signal Hanlder:\n");
+        psiginfo(info,"The siginfo is:\t");
+        printf("End signal Hanlder:\n");
+        _exit(0);
+    }
+    void add_sigaction(int signo)
+    {
+        sigset_t set;
+        sigemptyset(&set);
 
-    struct sigaction action;
-    action.sa_sigaction=sig_print;
-    action.sa_flags=SA_SIGINFO;
-    action.sa_mask=set;
-    if(sigaction(signo,&action,NULL)==-1)
-    {
-        printf("set sigaction for signal %s failed!,because %s\n",
-			strsignal(signo),strerror(errno));
-    }else
-    {
-        printf("set sigaction for signal %s successed\n",strsignal(signo));
-    }
-}
-void test_mmap_sigsegv(int fd,int len)
-{
-    VType addr=mmap(0,len,PROT_READ,MAP_SHARED,fd,0);
-    if(addr==MAP_FAILED)
-    {
-        printf("mmap sigsegv failed ,because %s\n",strerror(errno));
-    }else
-    {
-        char buffer[14];
-        memcpy(addr,"abcdefghijklmn",14);
-        memcpy(buffer,addr,14);
-    }
-    munmap(addr,len);
-}
-void test_mmap_sigbus(int fd,int len)
-{
-    VType addr=mmap(0,len,PROT_READ,MAP_SHARED,fd,0);
-    if(addr==MAP_FAILED)
-    {
-        printf("mmap sigbus failed ,because %s\n",strerror(errno));
-    }else
-    {
-        if(fork()==0)
+        struct sigaction action;
+        action.sa_sigaction=sig_print;
+        action.sa_flags=SA_SIGINFO;
+        action.sa_mask=set;
+        if(sigaction(signo,&action,NULL)==-1)
         {
-            ftruncate(fd,1);
-            _exit(0);
+            printf("set sigaction for signal %s failed!,because %s\n",
+                strsignal(signo),strerror(errno));
+        }else
+        {
+            printf("set sigaction for signal %s successed\n",strsignal(signo));
         }
-        sleep(2);
-        char buffer[14];
-        memcpy(buffer,addr,14);
     }
-    munmap(addr,len);
-}
-int main(void)
-{
-    int fd=open("/home/huaxz1986/test.txt",O_RDONLY|O_TRUNC);
-    if(fd==-1)
+    void test_mmap_sigsegv(int fd,int len)
     {
-        printf("open /home/huaxz1986/test.txt failed,because %s\n",
-               strerror(errno));
-        return -1;
+        VType addr=mmap(0,len,PROT_READ,MAP_SHARED,fd,0);
+        if(addr==MAP_FAILED)
+        {
+            printf("mmap sigsegv failed ,because %s\n",strerror(errno));
+        }else
+        {
+            char buffer[14];
+            memcpy(addr,"abcdefghijklmn",14);
+            memcpy(buffer,addr,14);
+        }
+        munmap(addr,len);
     }
-    ftruncate(fd,100);
-    add_sigaction(SIGSEGV);
-    add_sigaction(SIGBUS);
-    test_mmap_sigbus(fd,100);
-    return 0;
-}
+    void test_mmap_sigbus(int fd,int len)
+    {
+        VType addr=mmap(0,len,PROT_READ,MAP_SHARED,fd,0);
+        if(addr==MAP_FAILED)
+        {
+            printf("mmap sigbus failed ,because %s\n",strerror(errno));
+        }else
+        {
+            if(fork()==0)
+            {
+                ftruncate(fd,1);
+                _exit(0);
+            }
+            sleep(2);
+            char buffer[14];
+            memcpy(buffer,addr,14);
+        }
+        munmap(addr,len);
+    }
+    int main(void)
+    {
+        int fd=open("/home/huaxz1986/test.txt",O_RDONLY|O_TRUNC);
+        if(fd==-1)
+        {
+            printf("open /home/huaxz1986/test.txt failed,because %s\n",
+                strerror(errno));
+            return -1;
+        }
+        ftruncate(fd,100);
+        add_sigaction(SIGSEGV);
+        add_sigaction(SIGBUS);
+        test_mmap_sigbus(fd,100);
+        return 0;
+    }
 	```
 	这里调用的是`test_mmap_sigbus`，结果如下图：
 
@@ -1678,7 +1682,7 @@ int main(void)
 
 6. `mprotect`函数：修改一个现有映射区的权限：
 
-	```
+	```C++
 	#include<sys/mman.h>
 	int mprotect(void *addr,size_t len,int prot);
 	```
@@ -1699,7 +1703,7 @@ int main(void)
 
 8. 如果共享映射中的页已修改，则可以调用`msync`函数将该页冲洗到底层文件中。它类似于`fsync`，但是作用于存储映射区：
 
-	```
+	```C++
 	#include<sys/mman.h>
 	int msync(void *addr,size_t len,int flags);
 	```
@@ -1717,7 +1721,7 @@ int main(void)
 
 9. 当进程终止时，会自动解除存储映射区的映射。你也可以直接调用`munmap`函数来手动解除映射区。
 
-	```
+	```C++
 	#include<sys/mman.h>
 	int nummap(void* addr,size_t len);
 	```
