@@ -96,13 +96,13 @@
 
 1. `signal`函数：设置信号处理函数（该函数没什么作用）
 
-	```
+	```C++
 	#include<signal.h>
 	void (*signal(int signo,void (*func)(int)))(int);
 	```
 	为了简化分析，我们定义：`typedef void Sigfunc(int)`， `Sigfunc`为一个函数，它的参数为`int`，返回值为`void`。然后我们得到：
 	
-	```
+	```C++
 	Sigfunc * signal(int signo,Sigfunc func);
 	```
 	- 参数：
@@ -118,7 +118,7 @@
 	当`func`是我们指定的函数地址时，一旦指定的信号发生，内核就会调用此函数。我们称这种处理为捕捉该信号，称此函数为信号处理程序。
 	> 在`<signal.h>`内部，我们可以找到声明：
 	>
-	```
+	```C++
 	#define SIG_ERR (void (*)()) -1
 	#define SIG_DFL (void (*)()) 0
 	#define SIG_IGN (void (*)()) 1
@@ -128,7 +128,7 @@
 
 2. `kill/raise`函数：发送信号给进程或者进程组
 
-	```
+	```C++
 	#include<signal.h>
 	int kill(pid_t pid,int signo);
 	int raise(int signo);
@@ -163,19 +163,19 @@
 
 3. 示例：在`main`函数中调用`test_kill_raise`函数
 
-	```
-void test_kill_raise()
-{
-    M_TRACE("---------  Begin test_kill_raise()  ---------\n");
-    add_sigaction(SIGCHLD,NULL,0,0,sig_print);
-    add_sigaction(SIGINT,NULL,0,0,sig_print);
-    create_child();
-    // 只有父进程能到达此处
-    check_waitpid_signal();
-    print_pid();
-    print_parent_pid();
-    M_TRACE("---------  End test_kill_raise()  ---------\n\n");
-}
+	```C++
+	void test_kill_raise()
+	{
+		M_TRACE("---------  Begin test_kill_raise()  ---------\n");
+		add_sigaction(SIGCHLD,NULL,0,0,sig_print);
+		add_sigaction(SIGINT,NULL,0,0,sig_print);
+		create_child();
+		// 只有父进程能到达此处
+		check_waitpid_signal();
+		print_pid();
+		print_parent_pid();
+		M_TRACE("---------  End test_kill_raise()  ---------\n\n");
+	}
 	```
 	![kill_raise](../imgs/signal/kill_raise.JPG)
 
@@ -188,7 +188,7 @@ void test_kill_raise()
 
 4. `alarm`函数：为进程设置定时器
 
-	```
+	```C++
 	#include<unistd.h>
 	unsigned int alarm(unsigned int seconds);
 	```
@@ -207,21 +207,21 @@ void test_kill_raise()
 
 5. 示例：在`main`函数中调用`test_alarm`函数
 
-	```
-void test_alarm()
-{
-    M_TRACE("---------  Begin test_alarm()  ---------\n");
-    add_sigaction(SIGALRM,NULL,0,0,sig_print);
-    My_alarm(2) ; // 2s 定时器
-    sleep(3);
-    My_alarm(3); //3s 定时器
-    sleep(1);
-    My_alarm(0);// 取消定时器
-    sleep(3);
-    My_alarm(4); //4s 定时器
-    My_alarm(2); //2s 定时器
-    M_TRACE("---------  End test_alarm()  ---------\n\n");
-}
+	```C++
+	void test_alarm()
+	{
+		M_TRACE("---------  Begin test_alarm()  ---------\n");
+		add_sigaction(SIGALRM,NULL,0,0,sig_print);
+		My_alarm(2) ; // 2s 定时器
+		sleep(3);
+		My_alarm(3); //3s 定时器
+		sleep(1);
+		My_alarm(0);// 取消定时器
+		sleep(3);
+		My_alarm(4); //4s 定时器
+		My_alarm(2); //2s 定时器
+		M_TRACE("---------  End test_alarm()  ---------\n\n");
+	}
 	```
 	![alarm](../imgs/signal/alarm.JPG)
  
@@ -231,7 +231,7 @@ void test_alarm()
 	
 6. `pause`函数：阻塞调用进程直到捕捉到一个信号
 
-	```
+	```C++
 	#include<unistd.h>
 	int pause(void);
 	```	
@@ -242,15 +242,15 @@ void test_alarm()
 
 7. 示例：在`main`函数中调用`test_pause`函数
 
-	```
-void test_pause()
-{
-    M_TRACE("---------  Begin test_alarm()  ---------\n");
-    add_sigaction(SIGALRM,NULL,0,0,sig_print);
-    My_alarm(2) ; // 2s 定时器
-    My_pause();
-    M_TRACE("---------  End test_alarm()  ---------\n\n");
-}
+	```C++
+	void test_pause()
+	{
+		M_TRACE("---------  Begin test_alarm()  ---------\n");
+		add_sigaction(SIGALRM,NULL,0,0,sig_print);
+		My_alarm(2) ; // 2s 定时器
+		My_pause();
+		M_TRACE("---------  End test_alarm()  ---------\n\n");
+	}
 	```
 	![pause](../imgs/signal/pause.JPG)
 
@@ -259,7 +259,7 @@ void test_pause()
 
 8. 操作信号集的函数：
 
-	```
+	```C++
 	#include<signal.h>
 	int sigemptyset(sigset_t *set); 
 	int sigfillset(sigset_t *set);
@@ -278,7 +278,7 @@ void test_pause()
 
 9. `sigprocmask`函数：检查、更改、或者同时检测更改进程的信号屏蔽字
 
-	```
+	```C++
 	#include<signal.h>
 	int sigprocmask(int how,const sigset_t *restrict set,sigset_t *restrict oset);
 	```
@@ -302,41 +302,41 @@ void test_pause()
 
 10. 示例：在`main`函数中调用`test_sigprocmask_sigset`函数
 
-	```
-void test_sigprocmask_sigset()
-{
-    M_TRACE("---------  Begin test_sigprocmask_sigset()  ---------\n");
-    sigset_t set;
-    //********** 测试操作 sigset **********//
-    printf("********** sigset operation ***********\n");
-    My_sigemptyset(&set);
-    print_sigset(&set); // 打印信号集
-    My_sigaddset(&set,SIGINT);
-    print_sigset(&set); // 打印信号集
-    My_sigfillset(&set);
-    print_sigset(&set); // 打印信号集
-    My_sigdelset(&set,SIGINT);
-    print_sigset(&set); // 打印信号集
-    My_sigismember(&set,SIGINT);
-    My_sigismember(&set,SIGCHLD);
-    //********** 测试 sigprocmask **********//
-    printf("\n\n********** sigprocmask operation ***********\n");
-    print_progress_mask_sigset();// 打印进程的信号屏蔽字
-    My_sigprocmask(SIG_BLOCK,&set,NULL);
-    print_progress_mask_sigset();// 打印进程的信号屏蔽字
-    My_sigprocmask(SIG_UNBLOCK,&set,NULL);
-    print_progress_mask_sigset();// 打印进程的信号屏蔽字
-    My_sigprocmask(SIG_SETMASK,&set,NULL);
-    print_progress_mask_sigset();// 打印进程的信号屏蔽字
-    M_TRACE("---------  End test_sigprocmask_sigset()  ---------\n\n");
-}
+	```C++
+	void test_sigprocmask_sigset()
+	{
+		M_TRACE("---------  Begin test_sigprocmask_sigset()  ---------\n");
+		sigset_t set;
+		//********** 测试操作 sigset **********//
+		printf("********** sigset operation ***********\n");
+		My_sigemptyset(&set);
+		print_sigset(&set); // 打印信号集
+		My_sigaddset(&set,SIGINT);
+		print_sigset(&set); // 打印信号集
+		My_sigfillset(&set);
+		print_sigset(&set); // 打印信号集
+		My_sigdelset(&set,SIGINT);
+		print_sigset(&set); // 打印信号集
+		My_sigismember(&set,SIGINT);
+		My_sigismember(&set,SIGCHLD);
+		//********** 测试 sigprocmask **********//
+		printf("\n\n********** sigprocmask operation ***********\n");
+		print_progress_mask_sigset();// 打印进程的信号屏蔽字
+		My_sigprocmask(SIG_BLOCK,&set,NULL);
+		print_progress_mask_sigset();// 打印进程的信号屏蔽字
+		My_sigprocmask(SIG_UNBLOCK,&set,NULL);
+		print_progress_mask_sigset();// 打印进程的信号屏蔽字
+		My_sigprocmask(SIG_SETMASK,&set,NULL);
+		print_progress_mask_sigset();// 打印进程的信号屏蔽字
+		M_TRACE("---------  End test_sigprocmask_sigset()  ---------\n\n");
+	}
 	```
 	![sigprocmask](../imgs/signal/sigprocmask.JPG)	
 	
 
 11. `sigpending`函数：返回当前进程的被阻塞而且未决的信号的集合
 
-	```
+	```C++
 	#include<signal.h>
 	int sigpending(sigset_t *set);
 	```
@@ -350,45 +350,45 @@ void test_sigprocmask_sigset()
 
 12. 示例：在`main`函数中调用`test_sigpending`函数
 
-	```
-void test_sigpending()
-{
-    M_TRACE("---------  Begin test_sigpending()  ---------\n");
+	```C++
+	void test_sigpending()
+	{
+		M_TRACE("---------  Begin test_sigpending()  ---------\n");
 
-    //添加信号处理程序
-    add_sigaction(SIGINT,NULL,0,0,sig_print);
-    add_sigaction(SIGALRM,NULL,0,0,sig_print);
-    add_sigaction(SIGCONT,NULL,0,0,sig_print);
-    //**** 设置进程的信号屏蔽字 *****//
-    sigset_t set,o_set;
-    My_sigemptyset(&set);
-    My_sigaddset(&set,SIGINT);
-    My_sigaddset(&set,SIGALRM);
-    print_progress_mask_sigset(); // 打印原始的信号屏蔽字
-    My_sigprocmask(SIG_SETMASK,&set,&o_set);// 设置新的信号屏蔽字
-    print_progress_mask_sigset(); // 打印新的信号屏蔽字
+		//添加信号处理程序
+		add_sigaction(SIGINT,NULL,0,0,sig_print);
+		add_sigaction(SIGALRM,NULL,0,0,sig_print);
+		add_sigaction(SIGCONT,NULL,0,0,sig_print);
+		//**** 设置进程的信号屏蔽字 *****//
+		sigset_t set,o_set;
+		My_sigemptyset(&set);
+		My_sigaddset(&set,SIGINT);
+		My_sigaddset(&set,SIGALRM);
+		print_progress_mask_sigset(); // 打印原始的信号屏蔽字
+		My_sigprocmask(SIG_SETMASK,&set,&o_set);// 设置新的信号屏蔽字
+		print_progress_mask_sigset(); // 打印新的信号屏蔽字
 
-    //******* 查看未决的信号 *****//
-    print_progress_pending_sigset();
-    raise(SIGCONT);
-    raise(SIGINT);
-    raise(SIGALRM);
-    print_progress_pending_sigset(); // 发送三个信号之后，未决的信号集
-    //***** 设置进程的信号屏蔽字为空 *****//
-    My_sigemptyset(&set);
-    My_sigprocmask(SIG_SETMASK,&set,NULL);// 设置新的信号屏蔽字
-    print_progress_mask_sigset(); // 打印新的信号屏蔽字
-    print_progress_pending_sigset(); // 查看未决的信号集
+		//******* 查看未决的信号 *****//
+		print_progress_pending_sigset();
+		raise(SIGCONT);
+		raise(SIGINT);
+		raise(SIGALRM);
+		print_progress_pending_sigset(); // 发送三个信号之后，未决的信号集
+		//***** 设置进程的信号屏蔽字为空 *****//
+		My_sigemptyset(&set);
+		My_sigprocmask(SIG_SETMASK,&set,NULL);// 设置新的信号屏蔽字
+		print_progress_mask_sigset(); // 打印新的信号屏蔽字
+		print_progress_pending_sigset(); // 查看未决的信号集
 
-    My_sigprocmask(SIG_SETMASK,&o_set,NULL);// 还原信号屏蔽字
-    M_TRACE("---------  End test_sigpending()  ---------\n\n");
-}
+		My_sigprocmask(SIG_SETMASK,&o_set,NULL);// 还原信号屏蔽字
+		M_TRACE("---------  End test_sigpending()  ---------\n\n");
+	}
 	```
 	![sigpending](../imgs/signal/sigpending.JPG)
 
 13. `sigaction`函数：检查或者修改指定信号相关联的处理动作。它取代了UNIX早期使用的`signal`函数
 
-	```
+	```C++
 	#include<signal.h>
 	int sigaction(int signo,const struct sigaction *restrict act
 			,struct sigaction*restrict oact);
@@ -403,7 +403,7 @@ void test_sigpending()
 
 	`struct sigaction`的结构为：
 
-	```
+	```C++
 	struct sigaction{
 		void (*sa_handler)(int); //可以为 SIG_IGN、SIG_DFL或者信号处理函数的地址
 		sigset_t sa_mask; //额外需要屏蔽的信号
@@ -439,77 +439,77 @@ void test_sigpending()
 		- 通常按照下列方式调用信号处理程序： `void handler(int signo);`
 		- 但是如果设置了`SA_SIGINFO`标志，则按照下列方式调用信号处理程序： `void handler(int signo,siginfo_t *info,void* context);`。其中`siginfo_t`结构包含了信号产生原因的有关信息，结构大致如下：
 		
-			```
+		```C++
 		struct siginfo{
-			int si_signo; //信号编号
-			int si_errno; //如果非零，则为 errno
-			int si_code;  //额外的信息
-			pid_t si_pid; //sending process ID
-			uid_t si_uid;  // sending process real user ID
-			void *si_addr; // address that caused the fault
-			int si_status; //退出状态或者信号编号
-			union sigval si_value; //application-specific value
-			```
-			- 如果信号是`SIGCHLD`，则将设置`si_pid`、`si_status`、`si_uid`字段
-			- 如果信号是`SIGBUS`、`SIGILL`、`SIGFPE`、`SIGSEGV`，则`si_addr`包含了造成故障的根源地址，该地址可能并不准确。`si_errno`字段包含了错误编号，它对应了造成信号产生的条件，并由操作系统定义
+		int si_signo; //信号编号
+		int si_errno; //如果非零，则为 errno
+		int si_code;  //额外的信息
+		pid_t si_pid; //sending process ID
+		uid_t si_uid;  // sending process real user ID
+		void *si_addr; // address that caused the fault
+		int si_status; //退出状态或者信号编号
+		union sigval si_value; //application-specific value
+		```
+		- 如果信号是`SIGCHLD`，则将设置`si_pid`、`si_status`、`si_uid`字段
+		- 如果信号是`SIGBUS`、`SIGILL`、`SIGFPE`、`SIGSEGV`，则`si_addr`包含了造成故障的根源地址，该地址可能并不准确。`si_errno`字段包含了错误编号，它对应了造成信号产生的条件，并由操作系统定义
+	
+		其中`code`给出了信号产生的详细信息，它有一些常量定义。如`SIGCHLD`信号中，`code`可以为：`CLD_EXITED`、`CLD_KILLED`、`CLD_STOPPED`....
+
+		其中 `union sigval`包含：
 		
-			其中`code`给出了信号产生的详细信息，它有一些常量定义。如`SIGCHLD`信号中，`code`可以为：`CLD_EXITED`、`CLD_KILLED`、`CLD_STOPPED`....
+		```C++
+		union sigval{
+			int sival_int;
+			void* sival_ptr;
+		}			
+		```
+		应用程序在递送信号时，在`si_value.sival_int`中传递一个整数或者在`si_value.sival_ptr`中传递一个指针
+	- `context`参数是无类型指针，它可以被强制转换为`ucontext_t`结构指针，`ucontext_t`结构标识信号传递时进程的上下文。该结构至少包含下列字段：
 
-			其中 `union sigval`包含：
-			
-			```
-			union sigval{
-				int sival_int;
-				void* sival_ptr;
-			}			
-			```
-			应用程序在递送信号时，在`si_value.sival_int`中传递一个整数或者在`si_value.sival_ptr`中传递一个指针
-		- `context`参数是无类型指针，它可以被强制转换为`ucontext_t`结构指针，`ucontext_t`结构标识信号传递时进程的上下文。该结构至少包含下列字段：
+		```C++
+		ucontext_t *uc_link; //指向当前上下文结束后，要返回的上下文的地址
+		sigset_t uc_sigmask; // 当前上下文执行时，阻塞的信号集
+		stack_t uc_stack; //当前上下文使用的栈
+		mcontext_t uc_mcontext;// machine-specific representation of saved context
+		```
+		`uc_stack`字段描述了当前上下文使用的栈，至少包含下列成员：
 
-			```
-			ucontext_t *uc_link; //指向当前上下文结束后，要返回的上下文的地址
-			sigset_t uc_sigmask; // 当前上下文执行时，阻塞的信号集
-			stack_t uc_stack; //当前上下文使用的栈
-			mcontext_t uc_mcontext;// machine-specific representation of saved context
-			```
-			`uc_stack`字段描述了当前上下文使用的栈，至少包含下列成员：
-
-			```
-			void *ss_sp;   // 栈基指针
-			size_t ss_size;// 栈大小
-			nt ss_flags;   // 栈标识
-			```
+		```C++
+		void *ss_sp;   // 栈基指针
+		size_t ss_size;// 栈大小
+		nt ss_flags;   // 栈标识
+		```
 
 14. 示例：在`main`函数中调用 `test_sigaction`函数
 
-	```
-void test_sigaction()
-{
-    M_TRACE("---------  Begin test_sigaction()  ---------\n");
-    print_progress_mask_sigset();
+	```C++
+	void test_sigaction()
+	{
+		M_TRACE("---------  Begin test_sigaction()  ---------\n");
+		print_progress_mask_sigset();
 
-    //********* 设置进程的信号屏蔽字 *****//
-    sigset_t set;
-    My_sigemptyset(&set);
-    My_sigaddset(&set,SIGPIPE);
-    My_sigprocmask(SIG_SETMASK,&set,NULL);
-    print_progress_mask_sigset();
+		//********* 设置进程的信号屏蔽字 *****//
+		sigset_t set;
+		My_sigemptyset(&set);
+		My_sigaddset(&set,SIGPIPE);
+		My_sigprocmask(SIG_SETMASK,&set,NULL);
+		print_progress_mask_sigset();
 
-    //******** 添加信号处理程序 ********//
-    add_sigaction(SIGINT,NULL,1,1,sig_print); // 几种组合：是否 no_deffer，是否 restart
+		//******** 添加信号处理程序 ********//
+		add_sigaction(SIGINT,NULL,1,1,sig_print); // 几种组合：是否 no_deffer，是否 restart
 
-    if(fork()==0)
-    {
-        sleep(1); // 子进程先睡眠，使得父进程进入 check_waitpid()
-        kill(getppid(),SIGINT); // 子进程发送 SIGINT 到父进程
-        sleep(10); //子进程不是马上结束
-        _exit(0);
-    }
-    check_waitpid();
-    print_progress_mask_sigset();
+		if(fork()==0)
+		{
+			sleep(1); // 子进程先睡眠，使得父进程进入 check_waitpid()
+			kill(getppid(),SIGINT); // 子进程发送 SIGINT 到父进程
+			sleep(10); //子进程不是马上结束
+			_exit(0);
+		}
+		check_waitpid();
+		print_progress_mask_sigset();
 
-    M_TRACE("---------  End test_sigaction()  ---------\n\n");
-}
+		M_TRACE("---------  End test_sigaction()  ---------\n\n");
+	}
 	```
 	当不进行 NO_DEFER ，以及不自动重启被中断的系统调用时：
 
@@ -528,7 +528,7 @@ void test_sigaction()
 			
 15. `sigsetjmp/siglongjmp`函数：用于信号处理程序中的跳转函数
 
-	```
+	```C++
 	#include<setjmp.h>
 	int sigsetjmp(sigjmp_buf env,int savemask);
 	void siglongjmp(sigjmp_buf env,int val);
@@ -553,36 +553,36 @@ void test_sigaction()
 
 16. 示例：在`main`函数中调用`test_sigsetjmp_siglongjmp`函数：
 
-	```
-void test_sigsetjmp_siglongjmp()
-{
-    M_TRACE("---------  Begin test_setjmp_longjmp()  ---------\n");
-    print_progress_mask_sigset(); //打印当前的信号屏蔽字
+	```C++
+	void test_sigsetjmp_siglongjmp()
+	{
+		M_TRACE("---------  Begin test_setjmp_longjmp()  ---------\n");
+		print_progress_mask_sigset(); //打印当前的信号屏蔽字
 
-    add_sigaction(SIGINT,NULL,0,1,sig_print);
-    add_sigaction(SIGALRM,NULL,0,1,sig_print);
+		add_sigaction(SIGINT,NULL,0,1,sig_print);
+		add_sigaction(SIGALRM,NULL,0,1,sig_print);
 
 
-    int jmpval=sigsetjmp(env,0);
-    switch (jmpval) {
-        case 0://首次遇到
-            raise(SIGINT);
-            break;
-        case SIGINT:
-            printf("**** SIGINT:After siglongjmp from  signal handler**** \n");
-            print_progress_mask_sigset(); //打印当前的信号屏蔽字
-            raise(SIGALRM);
-            break;
-        case SIGALRM:
-            printf("**** SIGALRM:After siglongjmp from  signal handler**** \n");
-            print_progress_mask_sigset(); //打印当前的信号屏蔽字
-            break;
-        default:
-            printf("Never happened\n");
-            break;
-        }
-    M_TRACE("---------  End test_setjmp_longjmp()  ---------\n\n");
-}
+		int jmpval=sigsetjmp(env,0);
+		switch (jmpval) {
+			case 0://首次遇到
+				raise(SIGINT);
+				break;
+			case SIGINT:
+				printf("**** SIGINT:After siglongjmp from  signal handler**** \n");
+				print_progress_mask_sigset(); //打印当前的信号屏蔽字
+				raise(SIGALRM);
+				break;
+			case SIGALRM:
+				printf("**** SIGALRM:After siglongjmp from  signal handler**** \n");
+				print_progress_mask_sigset(); //打印当前的信号屏蔽字
+				break;
+			default:
+				printf("Never happened\n");
+				break;
+			}
+		M_TRACE("---------  End test_setjmp_longjmp()  ---------\n\n");
+	}
 	```
 	![siglongjmp](../imgs/signal/siglongjmp.JPG)
 
@@ -594,7 +594,7 @@ void test_sigsetjmp_siglongjmp()
 
 17. `sigsuspend`函数：用于原子性的修改信号屏蔽字然后进程睡眠
 
-	```
+	```C++
 	#include<signal.h>
 	int sigsuspend(const sigset_t *sigmask);
 	```
@@ -610,28 +610,28 @@ void test_sigsetjmp_siglongjmp()
 
 18. 示例：在`main`函数中调用`test_sigsuspend`函数：
 
-	```
-void test_sigsuspend()
-{
-    M_TRACE("---------  Begin test_sigsuspend()  ---------\n");
-    //***** 添加信号处理程序 ****//
-    add_sigaction(SIGINT,NULL,0,1,sig_print);
-    add_sigaction(SIGALRM,NULL,0,1,sig_print);
-    create_child();
-    //***** 只有父进程能到达此处 ******//
+	```C++
+	void test_sigsuspend()
+	{
+		M_TRACE("---------  Begin test_sigsuspend()  ---------\n");
+		//***** 添加信号处理程序 ****//
+		add_sigaction(SIGINT,NULL,0,1,sig_print);
+		add_sigaction(SIGALRM,NULL,0,1,sig_print);
+		create_child();
+		//***** 只有父进程能到达此处 ******//
 
-    print_progress_mask_sigset(); // 当前进程的信号屏蔽字
-    print_progress_pending_sigset(); // 当前进程的未决的信号集
-    sigset_t set;
-    My_sigemptyset(&set);
-    My_sigaddset(&set,SIGINT);
-    My_sigsuspend(&set); //投入睡眠
-    print_progress_mask_sigset(); // 当前进程的信号屏蔽字
-    print_progress_pending_sigset(); // 当前进程的未决的信号集
-    check_waitpid_signal();
+		print_progress_mask_sigset(); // 当前进程的信号屏蔽字
+		print_progress_pending_sigset(); // 当前进程的未决的信号集
+		sigset_t set;
+		My_sigemptyset(&set);
+		My_sigaddset(&set,SIGINT);
+		My_sigsuspend(&set); //投入睡眠
+		print_progress_mask_sigset(); // 当前进程的信号屏蔽字
+		print_progress_pending_sigset(); // 当前进程的未决的信号集
+		check_waitpid_signal();
 
-    M_TRACE("---------  End test_sigsuspend()  ---------\n\n");
-}
+		M_TRACE("---------  End test_sigsuspend()  ---------\n\n");
+	}
 	```
 	![sigsuspend](../imgs/signal/sigsuspend.JPG)
 
@@ -642,7 +642,7 @@ void test_sigsuspend()
 
 19. `abort`函数：是程序异常终止
 
-	```
+	```C++
 	#include<stdlib.h>
 	void abort(void);
 	```
@@ -657,28 +657,28 @@ void test_sigsuspend()
 
 20. 示例：在`main`函数中调用`test_abort`函数：
 
-	```
-void test_abort()
-{
-    M_TRACE("---------  Begin test_abort()  ---------\n");
+	```C++
+	void test_abort()
+	{
+		M_TRACE("---------  Begin test_abort()  ---------\n");
 
-    //**** 添加信号处理程序 ****//
-    add_sigaction(SIGABRT,NULL,0,1,sig_print);
-    //**** 设置进程的信号屏蔽字  ****//
-    print_progress_mask_sigset(); // 打印进程的信号屏蔽字
-    sigset_t set;
-    sigset_t o_set; // 保存旧的进程的信号屏蔽字
-    My_sigemptyset(&set);
-    My_sigaddset(&set,SIGABRT);
-    My_sigprocmask(SIG_SETMASK,&set,&o_set);//设置进程的信号屏蔽字
-    print_progress_mask_sigset(); // 打印进程的信号屏蔽字
+		//**** 添加信号处理程序 ****//
+		add_sigaction(SIGABRT,NULL,0,1,sig_print);
+		//**** 设置进程的信号屏蔽字  ****//
+		print_progress_mask_sigset(); // 打印进程的信号屏蔽字
+		sigset_t set;
+		sigset_t o_set; // 保存旧的进程的信号屏蔽字
+		My_sigemptyset(&set);
+		My_sigaddset(&set,SIGABRT);
+		My_sigprocmask(SIG_SETMASK,&set,&o_set);//设置进程的信号屏蔽字
+		print_progress_mask_sigset(); // 打印进程的信号屏蔽字
 
-    //*****  调用 abort() ****//
-    abort();
+		//*****  调用 abort() ****//
+		abort();
 
-    My_sigprocmask(SIG_SETMASK,&o_set,NULL); // 恢复进程的信号屏蔽字
-    M_TRACE("---------  End test_abort()  ---------\n\n");
-}
+		My_sigprocmask(SIG_SETMASK,&o_set,NULL); // 恢复进程的信号屏蔽字
+		M_TRACE("---------  End test_abort()  ---------\n\n");
+	}
 	```
 
 	![abort](../imgs/signal/abort.JPG)
@@ -690,7 +690,7 @@ void test_abort()
 
 21. `sleep/nanosleep/clock_nanosleep`函数：将进程投入睡眠
 
-	```
+	```C++
 	#include<unistd.h>
 	unsigned int sleep(unsigned int seconds);
 	#include<time.h>
@@ -743,22 +743,22 @@ void test_abort()
 
 22. 示例：在`main`函数中调用`test_sleep_nanosleep`函数
 
-	```
-void test_sleep_nanosleep()
-{
-    M_TRACE("---------  Begin test_alarm()  ---------\n");
-    add_sigaction(SIGINT,NULL,0,0,sig_print);
-    add_sigaction(SIGALRM,NULL,0,0,sig_print);
-    create_child();
-    // 只有父进程能到达此处
-    My_sleep(3);
-//    struct timespec request_time;
-//    struct timespec remain_time;
-//    request_time.tv_nsec=100;
-//    request_time.tv_sec=3;
-//    My_nanosleep(&request_time,&remain_time);
-    M_TRACE("---------  End test_alarm()  ---------\n\n");
-}
+	```C++
+	void test_sleep_nanosleep()
+	{
+		M_TRACE("---------  Begin test_alarm()  ---------\n");
+		add_sigaction(SIGINT,NULL,0,0,sig_print);
+		add_sigaction(SIGALRM,NULL,0,0,sig_print);
+		create_child();
+		// 只有父进程能到达此处
+		My_sleep(3);
+	//    struct timespec request_time;
+	//    struct timespec remain_time;
+	//    request_time.tv_nsec=100;
+	//    request_time.tv_sec=3;
+	//    My_nanosleep(&request_time,&remain_time);
+		M_TRACE("---------  End test_alarm()  ---------\n\n");
+	}
 	```
 	![sleep](../imgs/signal/sleep.JPG)
 
@@ -773,7 +773,7 @@ void test_sleep_nanosleep()
 
 23. `sigqueue`函数：向进程发送排队的信号
 
-	```
+	```C++
 	# include<signal.h>
 	int sigqueue(pid_t pid,int signo,const union sigval value);
 	```
@@ -811,7 +811,7 @@ void test_sleep_nanosleep()
 
 25. `psignal`函数：打印与信号编号对应的字符串
 
-	```
+	```C++
 	#include<signal.h>
 	void psignal(int signo,const char*msg);
 	```
@@ -823,7 +823,7 @@ void test_sleep_nanosleep()
 
 26. `psiginfo`函数：打印`siginfo`结构
 
-	```
+	```C++
 	#include<signal.h>
 	void psiginfo(const siginfo_t *info,const char *msg);
 	```
@@ -835,7 +835,7 @@ void test_sleep_nanosleep()
 
 27. `strsigal`函数：返回信号的字符描述（类似于`strerror`函数）
 
-	```
+	```C++
 	#include<string.h>
 	char *strsignal(int signo);
 	```
